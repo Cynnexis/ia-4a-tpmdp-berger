@@ -1,20 +1,13 @@
 package agent.planningagent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import util.HashMapUtil;
-
-import java.util.HashMap;
-
 import environnement.Action;
-import environnement.Etat;
-import environnement.IllegalActionException;
-import environnement.MDP;
 import environnement.Action2D;
+import environnement.Etat;
+import environnement.MDP;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Cet agent met a jour sa fonction de valeur avec value iteration 
@@ -64,7 +57,7 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		//delta est utilise pour detecter la convergence de l'algorithme
 		//Dans la classe mere, lorsque l'on planifie jusqu'a convergence, on arrete les iterations        
 		//lorsque delta < epsilon 
-		//Dans cette classe, il  faut juste mettre a jour delta 
+		//Dans cette classe, il  faut juste mettre a jour delta
 		this.delta=0.0;
 		
 		// VOTRE CODE
@@ -148,8 +141,17 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	 */
 	@Override
 	public Action getAction(Etat e) {
-		// TODO: VOTRE CODE
-		return Action2D.NONE;
+		// VOTRE CODE
+		List<Action> actions = getPolitique(e);
+		
+		if (actions != null) {
+			if (actions.size() > 0)
+				return actions.get(0);
+			else
+				return Action2D.NONE;
+		}
+		else
+			return Action2D.NONE;
 	}
 
 
