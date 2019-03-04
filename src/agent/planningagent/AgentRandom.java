@@ -26,15 +26,11 @@ public class AgentRandom extends PlanningValueAgent{
 		int r = rand.nextInt(actions.size());//random entre 0 inclu et param exlu
 		return actions.get(r);
 	}
-
-	
 	
 	@Override
 	public double getValeur(Etat _e) {
 		return 0.0;
 	}
-
-	
 
 	@Override
 	public List<Action> getPolitique(Etat _e) {
@@ -49,11 +45,5 @@ public class AgentRandom extends PlanningValueAgent{
 	@Override
 	public void setGamma(double parseDouble) {
 		// TODO Auto-generated method stub
-		
 	}
-
-
-
-
-
 }
