@@ -39,12 +39,18 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		for (Etat etat : this.mdp.getEtatsAccessibles())
 			V.put(etat, 0d);
 	}
-	
 	public ValueIterationAgent(MDP mdp) {
 		this(0.9,mdp);
 	}
 	
-	private void computeVActions(HashMap<Action, Double> results, Etat e) {
+	/**
+	 * Compute a part of V(e) by calculating all the sum of states according to a given action `a`.
+	 * @param results The list that maps from an action to the result of doing this action. It is passed by reference,
+	 *                which means it is the result of the function.
+	 * @param e The state `e` in V(e).
+	 * @return Return the best result contained in `results`.
+	 */
+	private double computeVActions(HashMap<Action, Double> results, Etat e) {
 		for (Action a : mdp.getActionsPossibles(e)) {
 			results.put(a, 0d);
 			try {
@@ -64,6 +70,14 @@ public class ValueIterationAgent extends PlanningValueAgent{
 				ex.printStackTrace();
 			}
 		}
+		
+		// Choose the best result such that it is maximized (according to a)
+		double result = 0d;
+		for (Action a : results.keySet())
+			if (result < results.getOrDefault(a, 0d))
+				result = results.getOrDefault(a, 0d);
+			
+		return result;
 	}
 	
 	/**
@@ -78,7 +92,7 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		//Dans la classe mere, lorsque l'on planifie jusqu'a convergence, on arrete les iterations        
 		//lorsque delta < epsilon 
 		//Dans cette classe, il  faut juste mettre a jour delta
-		this.delta=0.0;
+		this.delta = 0.0;
 		
 		// VOTRE CODE
 		
@@ -92,14 +106,7 @@ public class ValueIterationAgent extends PlanningValueAgent{
 			if (!mdp.estAbsorbant(e)) {
 				results.clear();
 				
-				computeVActions(results, e);
-				
-				// Choose the best result such that it is maximized (according to a)
-				double result = 0d;
-				for (Action a : results.keySet())
-					if (result < results.getOrDefault(a, 0d))
-						result = results.getOrDefault(a, 0d);
-				getV().put(e, result);
+				getV().put(e, computeVActions(results, e));
 			}
 		}
 		
@@ -170,26 +177,20 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		// retourne action de meilleure valeur dans e selon V,
 		// retourne liste vide si aucune action legale (etat absorbant)
 		
-		List<Action> returnactions = new ArrayList<Action>();
+		List<Action> returnActions = new ArrayList<Action>();
 		HashMap<Action, Double> results = new HashMap<>();
 		
 		if (!mdp.estAbsorbant(e)) {
 			
-			computeVActions(results, e);
+			double result = computeVActions(results, e);
 			
-			// Choose the best result such that it is maximized (according to a)
-			double result = 0d;
-			Action action = null;
-			for (Action a : results.keySet()) {
-				if (result < results.getOrDefault(a, 0d)) {
-					action = a;
-					result = results.getOrDefault(a, 0d);
-				}
-			}
-			returnactions.add(action);
+			// Now that we know the best value, search for every actions with that same result
+			for (Action a : results.keySet())
+				if (a != null && results.getOrDefault(a, 0d) == result)
+					returnActions.add(a);
 		}
 		
-		return returnactions;
+		return returnActions;
 	}
 	
 	@Override
@@ -197,6 +198,8 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		super.reset(); //reinitialise les valeurs de V
 		// VOTRE CODE
 		getV().clear();
+		for (Etat e : mdp.getEtatsAccessibles())
+			getV().put(e, 0d);
 		
 		this.notifyObs();
 	}
@@ -204,9 +207,11 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	public HashMap<Etat,Double> getV() {
 		return V;
 	}
+	
 	public double getGamma() {
 		return gamma;
 	}
+	
 	@Override
 	public void setGamma(double _g){
 		this.gamma = _g;
