@@ -1,13 +1,11 @@
 package agent.planningagent;
 
-import environnement.Action;
-import environnement.Action2D;
-import environnement.Etat;
-import environnement.MDP;
+import environnement.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Cet agent met a jour sa fonction de valeur avec value iteration 
@@ -15,7 +13,7 @@ import java.util.List;
  * @author laetitiamatignon
  *
  */
-@SuppressWarnings("Duplicates")
+//@SuppressWarnings("Duplicates")
 public class ValueIterationAgent extends PlanningValueAgent{
 	/**
 	 * discount facteur
@@ -46,6 +44,28 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		this(0.9,mdp);
 	}
 	
+	private void computeVActions(HashMap<Action, Double> results, Etat e) {
+		for (Action a : mdp.getActionsPossibles(e)) {
+			results.put(a, 0d);
+			try {
+				Map<Etat, Double> proba = mdp.getEtatTransitionProba(e, a);
+				for (Etat etatSuivant : proba.keySet()) {
+					assert(proba.getOrDefault(etatSuivant, -1d) > 0);
+					
+					// Compute T, R and V_{k-1}(s')
+					double T = proba.get(etatSuivant);
+					double R = mdp.getRecompense(e, a, etatSuivant);
+					double VsPrime = getV().getOrDefault(etatSuivant, 0d);
+					
+					// Compute final result
+					results.put(a, results.getOrDefault(a, 0d) + T * (R + getGamma() * VsPrime));
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 	/**
 	 * 
 	 * Mise a jour de V: effectue UNE iteration de value iteration (calcule V_k(s) en fonction de V_{k-1}(s'))
@@ -72,31 +92,7 @@ public class ValueIterationAgent extends PlanningValueAgent{
 			if (!mdp.estAbsorbant(e)) {
 				results.clear();
 				
-				for (Action a : mdp.getActionsPossibles(e)) {
-					results.put(a, 0d);
-					try {
-						for (Etat etatSuivant : mdp.getEtatTransitionProba(e, a).keySet()) {
-							if (!e.equals(etatSuivant)) {
-								// Compute T
-								double T = 0d;
-								try {
-									T = mdp.getEtatTransitionProba(e, a).get(etatSuivant);
-								} catch (Exception ex) {
-									ex.printStackTrace();
-								}
-								
-								// Compute R
-								double R = mdp.getRecompense(e, a, etatSuivant);
-								double VsPrime = getV().getOrDefault(etatSuivant, 0d);
-								
-								// Compute final result
-								results.put(a, results.getOrDefault(a, 0d) + T * (R + getGamma() * VsPrime));
-							}
-						}
-					} catch (Exception ex) {
-						ex.printStackTrace();
-					}
-				}
+				computeVActions(results, e);
 				
 				// Choose the best result such that it is maximized (according to a)
 				double result = 0d;
@@ -178,30 +174,8 @@ public class ValueIterationAgent extends PlanningValueAgent{
 		HashMap<Action, Double> results = new HashMap<>();
 		
 		if (!mdp.estAbsorbant(e)) {
-			for (Action a : mdp.getActionsPossibles(e)) {
-				results.put(a, 0d);
-				try {
-					for (Etat etatSuivant : mdp.getEtatTransitionProba(e, a).keySet()) {
-						if (!e.equals(etatSuivant)) {
-							// Compute T
-							double T = 0d;
-							try {
-								T = mdp.getEtatTransitionProba(e, a).get(etatSuivant);
-							} catch (Exception ex) {
-								ex.printStackTrace();
-							}
-							// Compute R
-							double R = mdp.getRecompense(e, a, etatSuivant);
-							double VsPrime = getV().getOrDefault(etatSuivant, 0d);
-							
-							// Compute final result
-							results.put(a, results.getOrDefault(a, 0d) + T * (R + getGamma() * VsPrime));
-						}
-					}
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
+			
+			computeVActions(results, e);
 			
 			// Choose the best result such that it is maximized (according to a)
 			double result = 0d;
@@ -235,7 +209,7 @@ public class ValueIterationAgent extends PlanningValueAgent{
 	}
 	@Override
 	public void setGamma(double _g){
-		System.out.println("gamma= "+gamma);
 		this.gamma = _g;
+		System.out.println("gamma= "+gamma);
 	}
 }
