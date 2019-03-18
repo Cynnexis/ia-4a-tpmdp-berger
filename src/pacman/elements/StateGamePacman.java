@@ -2,6 +2,7 @@ package pacman.elements;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import environnement.Etat;
 import javafx.util.Pair;
@@ -756,7 +757,7 @@ public class StateGamePacman implements Etat//TODO verifier hashcode, equals et 
 	}
 
 	
-	@Override
+	/*@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
@@ -813,7 +814,7 @@ public class StateGamePacman implements Etat//TODO verifier hashcode, equals et 
 		if (win != other.win)
 			return false;
 		return true;
-	}
+	}*/
 	public Object clone() {
 		StateGamePacman clone = null;
 		try {
@@ -840,5 +841,27 @@ public class StateGamePacman implements Etat//TODO verifier hashcode, equals et 
 		// on renvoie le clone
 		return clone;
 	}
-
+	
+	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof StateGamePacman)) return false;
+		StateGamePacman that = (StateGamePacman) o;
+		return getFoodEaten() == that.getFoodEaten() &&
+				getCapsulesEaten() == that.getCapsulesEaten() &&
+				getGhostsEaten() == that.getGhostsEaten() &&
+				isWin() == that.isWin() &&
+				isLose() == that.isLose() &&
+				getStep() == that.getStep() &&
+				getScore() == that.getScore() &&
+				Objects.equals(getMaze(), that.getMaze()) &&
+				Objects.equals(pacmans_states, that.pacmans_states) &&
+				Objects.equals(ghosts_states, that.ghosts_states);
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(getMaze(), pacmans_states, ghosts_states, getFoodEaten(), getCapsulesEaten(), getGhostsEaten(), isWin(), isLose(), getStep(), getScore());
+	}
 }

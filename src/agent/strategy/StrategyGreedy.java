@@ -36,7 +36,7 @@ public class StrategyGreedy extends StrategyExploration {
 		// VOTRE CODE
 		
 		// If the random number generator choose a value between [0 ; ε]
-		if (rand.nextDouble() <= this.epsilon || actions.isEmpty())
+		if (rand.nextDouble() <= getEpsilon() || actions.isEmpty())
 			return actionsLegales.get(rand.nextInt(actionsLegales.size()));
 		// Else, choose the best action
 		else
