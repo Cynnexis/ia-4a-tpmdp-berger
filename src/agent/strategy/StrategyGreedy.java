@@ -1,5 +1,6 @@
 package agent.strategy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -11,14 +12,12 @@ import environnement.Etat;
  * @author lmatignon
  *
  */
-public class StrategyGreedy extends StrategyExploration{
+public class StrategyGreedy extends StrategyExploration {
 	/**
 	 * parametre pour probabilite d'exploration
 	 */
 	protected double epsilon;
-	private Random rand=new Random();
-	
-	
+	private Random rand = new Random();
 	
 	public StrategyGreedy(RLAgent agent,double epsilon) {
 		super(agent);
@@ -26,16 +25,26 @@ public class StrategyGreedy extends StrategyExploration{
 	}
 
 	@Override
-	public Action getAction(Etat _e) {//renvoi null si _e absorbant
-		double d =rand.nextDouble();
-		List<Action> actions;
-		if (this.agent.getActionsLegales(_e).isEmpty()){
+	public Action getAction(Etat e) {// renvoi null si e absorbant
+		// Get the actions, sorted (the first is the best action)
+		List<Action> actions = this.getAgent().getPolitique(e);
+		if (this.agent.getActionsLegales(e).isEmpty() || actions.isEmpty())
 			return null;
-		}
-	
-		//VOTRE CODE ***
 		
-		return null;
+		// VOTRE CODE
+		
+		// If there is one action in the list, return it.
+		if (actions.size() == 1)
+			return actions.get(0);
+		
+		// If the random number generator choose a value between [0 ; ε]
+		if (rand.nextDouble() <= this.epsilon) {
+			actions.remove(0);
+			return actions.get(rand.nextInt(actions.size()));
+		}
+		// Else, choose the best action
+		else
+			return actions.get(0);
 	}
 
 	public double getEpsilon() {
@@ -44,13 +53,6 @@ public class StrategyGreedy extends StrategyExploration{
 
 	public void setEpsilon(double epsilon) {
 		this.epsilon = epsilon;
-		System.out.println("epsilon:"+epsilon);
+		System.out.println("epsilon: " + epsilon);
 	}
-
-/*	@Override
-	public void setAction(Action _a) {
-		// TODO Auto-generated method stub
-		
-	}*/
-
 }

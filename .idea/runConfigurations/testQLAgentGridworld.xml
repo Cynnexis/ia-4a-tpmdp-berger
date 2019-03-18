@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="testQLAgentGridworld" type="Application" factoryName="Application" nameIsGenerated="true">
+    <option name="MAIN_CLASS_NAME" value="simuTP2.testQLAgentGridworld" />
+    <module name="ia-4a-tpmdp-berger" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="simuTP2.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
