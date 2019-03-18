@@ -40,10 +40,10 @@ public class QLearningAgent extends RLAgent {
 	 * renvoi liste vide si aucunes actions possibles dans l'etat (par ex. etat absorbant)
 	 */
 	@Override
-	public List<Action> getPolitique(final Etat e) {
+	public List<Action> getPolitique(Etat e) {
 		// retourne action de meilleures valeurs dans e selon Q : utiliser getQValeur()
 		// retourne liste vide si aucune action legale (etat terminal)
-		List<Action> actions = new ArrayList<>(this.getActionsLegales(e));
+		List<Action> actions = new ArrayList<>();
 		
 		if (this.getActionsLegales(e).size() == 0) {//etat  absorbant; impossible de le verifier via environnement
 			System.out.println("aucune action legale");
@@ -51,14 +51,12 @@ public class QLearningAgent extends RLAgent {
 		}
 		
 		// VOTRE CODE
-		actions.sort((a1, a2) -> (int) (getQValeur(e, a1) - getQValeur(e, a2)));
-		/*HashMap<Action, Double> submap = qvaleurs.getOrDefault(e, new HashMap<>());
 		double result = getValeur(e);
 		
 		for (Action a : this.getActionsLegales(e)) {
-			if (a != null && submap.getOrDefault(a, 0.) >= result)
+			if (a != null && getQValeur(e, a) >= result)
 				actions.add(a);
-		}*/
+		}
 		
 		return actions;
 	}
@@ -67,7 +65,6 @@ public class QLearningAgent extends RLAgent {
 	public double getValeur(Etat e) {
 		// VOTRE CODE
 		
-		// Est-ce le max de toutes les actions ?
 		double max = 0.;
 		HashMap<Action, Double> submap = qvaleurs.getOrDefault(e, new HashMap<>());
 		

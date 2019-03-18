@@ -28,20 +28,16 @@ public class StrategyGreedy extends StrategyExploration {
 	public Action getAction(Etat e) {// renvoi null si e absorbant
 		// Get the actions, sorted (the first is the best action)
 		List<Action> actions = this.getAgent().getPolitique(e);
-		if (this.agent.getActionsLegales(e).isEmpty() || actions.isEmpty())
+		List<Action> actionsLegales = this.agent.getActionsLegales(e);
+		
+		if (actionsLegales.isEmpty() || actions.isEmpty())
 			return null;
 		
 		// VOTRE CODE
 		
-		// If there is one action in the list, return it.
-		if (actions.size() == 1)
-			return actions.get(0);
-		
 		// If the random number generator choose a value between [0 ; ε]
-		if (rand.nextDouble() <= this.epsilon) {
-			actions.remove(0);
-			return actions.get(rand.nextInt(actions.size()));
-		}
+		if (rand.nextDouble() <= this.epsilon)
+			return actionsLegales.get(rand.nextInt(actionsLegales.size()));
 		// Else, choose the best action
 		else
 			return actions.get(0);
