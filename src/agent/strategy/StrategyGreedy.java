@@ -30,13 +30,13 @@ public class StrategyGreedy extends StrategyExploration {
 		List<Action> actions = this.getAgent().getPolitique(e);
 		List<Action> actionsLegales = this.agent.getActionsLegales(e);
 		
-		if (actionsLegales.isEmpty() || actions.isEmpty())
+		if (actionsLegales.isEmpty())
 			return null;
 		
 		// VOTRE CODE
 		
 		// If the random number generator choose a value between [0 ; ε]
-		if (rand.nextDouble() <= this.epsilon)
+		if (rand.nextDouble() <= this.epsilon || actions.isEmpty())
 			return actionsLegales.get(rand.nextInt(actionsLegales.size()));
 		// Else, choose the best action
 		else
