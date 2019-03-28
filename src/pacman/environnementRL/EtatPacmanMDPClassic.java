@@ -14,107 +14,127 @@ import pacman.elements.StateGamePacman;
 import environnement.Etat;
 /**
  * Classe pour définir un etat du MDP pour l'environnement pacman avec QLearning tabulaire
-
  */
 public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	/** TODO: Minimiser le plus possible les attributs de cette classe, en plundering les attrbiuts des classes
 	 * MazePacman et StateAgentPacman s'il le faut.
 	 **/
-	private MazePacman maze;
-	private StateAgentPacman pacmansState;
-	private StateAgentPacman ghostsState;
-	private int foodEaten;
-	private int capsulesEaten;
-	private int ghostsEaten;
-	private int score;
+	
+	private int pacmanX;
+	private int pacmanY;
+	private int pacmanDirection;
+	private int ghostX;
+	private int ghostY;
+	private int ghostDirection;
+	private boolean[][] walls;
+	private boolean[][] food;
 	
 	public EtatPacmanMDPClassic(@NotNull final StateGamePacman state){
 		// VOTRE CODE
-		setMaze(state.getMaze());
-		setPacmansState(state.getNumberOfPacmans() > 0 ? state.getPacmanState(state.getNumberOfPacmans() - 1) : null);
-		setGhostsState(state.getNumberOfGhosts() > 0 ? state.getGhostState(state.getNumberOfGhosts() - 1) : null);
-		setFoodEaten(state.getFoodEaten());
-		setCapsulesEaten(state.getCapsulesEaten());
-		setGhostsEaten(state.getGhostsEaten());
-		setScore(state.getScore());
+		setPacmanX(state.getPacmanState(0).getX());
+		setPacmanY(state.getPacmanState(0).getY());
+		setPacmanDirection(state.getPacmanState(0).getDirection());
+		setGhostX(state.getGhostState(0).getX());
+		setGhostY(state.getGhostState(0).getY());
+		setGhostDirection(state.getGhostState(0).getDirection());
+		setWalls(new boolean[state.getMaze().getSizeX()][state.getMaze().getSizeY()]);
+		setFood(new boolean[state.getMaze().getSizeX()][state.getMaze().getSizeY()]);
+		
+		for (int x = 0; x < state.getMaze().getSizeX(); x++) {
+			for (int y = 0; y < state.getMaze().getSizeY(); y++) {
+				walls[x][y] = state.getMaze().isWall(x, y);
+				food[x][y] = state.getMaze().isFood(x, y);
+			}
+		}
+	}
+	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
+		setPacmanX(etat.getPacmanX());
+		setPacmanY(etat.getPacmanY());
+		setPacmanDirection(etat.getPacmanDirection());
+		setGhostX(etat.getGhostX());
+		setGhostY(etat.getGhostY());
+		setGhostDirection(etat.getGhostDirection());
+		setWalls(etat.getWalls());
+		setFood(etat.getFood());
 	}
 	
 	/* GETTERS & SETTERS */
 	
-	public MazePacman getMaze() {
-		return maze;
+	public int getPacmanX() {
+		return pacmanX;
 	}
 	
-	public void setMaze(MazePacman maze) {
-		this.maze = maze;
+	public void setPacmanX(int pacmanX) {
+		this.pacmanX = pacmanX;
 	}
 	
-	public StateAgentPacman getPacmansState() {
-		return pacmansState;
+	public int getPacmanY() {
+		return pacmanY;
 	}
 	
-	public void setPacmansState(StateAgentPacman pacmansState) {
-		this.pacmansState = pacmansState;
+	public void setPacmanY(int pacmanY) {
+		this.pacmanY = pacmanY;
 	}
 	
-	public StateAgentPacman getGhostsState() {
-		return ghostsState;
+	public int getPacmanDirection() {
+		return pacmanDirection;
 	}
 	
-	public void setGhostsState(StateAgentPacman ghostsState) {
-		this.ghostsState = ghostsState;
+	public void setPacmanDirection(int pacmanDirection) {
+		this.pacmanDirection = pacmanDirection;
 	}
 	
-	public int getFoodEaten() {
-		return foodEaten;
+	public int getGhostX() {
+		return ghostX;
 	}
 	
-	public void setFoodEaten(int foodEaten) {
-		this.foodEaten = foodEaten;
+	public void setGhostX(int ghostX) {
+		this.ghostX = ghostX;
 	}
 	
-	public int getCapsulesEaten() {
-		return capsulesEaten;
+	public int getGhostY() {
+		return ghostY;
 	}
 	
-	public void setCapsulesEaten(int capsulesEaten) {
-		this.capsulesEaten = capsulesEaten;
+	public void setGhostY(int ghostY) {
+		this.ghostY = ghostY;
 	}
 	
-	public int getGhostsEaten() {
-		return ghostsEaten;
+	public int getGhostDirection() {
+		return ghostDirection;
 	}
 	
-	public void setGhostsEaten(int ghostsEaten) {
-		this.ghostsEaten = ghostsEaten;
+	public void setGhostDirection(int ghostDirection) {
+		this.ghostDirection = ghostDirection;
 	}
 	
-	public int getScore() {
-		return score;
+	public boolean[][] getWalls() {
+		return walls;
 	}
 	
-	public void setScore(int score) {
-		this.score = score;
+	public void setWalls(boolean[][] walls) {
+		this.walls = walls;
+	}
+	
+	public boolean[][] getFood() {
+		return food;
+	}
+	
+	public void setFood(boolean[][] food) {
+		this.food = food;
 	}
 	
 	/* OVERRIDES */
 	
 	@Override
 	public Object clone() {
-		EtatPacmanMDPClassic clone = null;
 		try {
-			// On recupere l'instance a renvoyer par l'appel de la 
-			// methode super.clone()
-			clone = (EtatPacmanMDPClassic)super.clone();
-		} catch(CloneNotSupportedException cnse) {
-			// Ne devrait jamais arriver car nous implementons 
-			// l'interface Cloneable
-			cnse.printStackTrace(System.err);
+			return super.clone();
+		} catch(CloneNotSupportedException ex) {
+			ex.printStackTrace();
+			return new EtatPacmanMDPClassic(this);
 		}
-		
-		// on renvoie le clone
-		return clone;
 	}
 	
 	@Override
@@ -123,31 +143,35 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
-		return getFoodEaten() == that.getFoodEaten() &&
-				getCapsulesEaten() == that.getCapsulesEaten() &&
-				getGhostsEaten() == that.getGhostsEaten() &&
-				getScore() == that.getScore() &&
-				Objects.equals(getMaze(), that.getMaze()) &&
-				Objects.equals(getPacmansState(), that.getPacmansState()) &&
-				Objects.equals(getGhostsState(), that.getGhostsState());
+		return getPacmanX() == that.getPacmanX() &&
+				getPacmanY() == that.getPacmanY() &&
+				getPacmanDirection() == that.getPacmanDirection() &&
+				getGhostX() == that.getGhostX() &&
+				getGhostY() == that.getGhostY() &&
+				getGhostDirection() == that.getGhostDirection() &&
+				Arrays.equals(getWalls(), that.getWalls()) &&
+				Arrays.equals(getFood(), that.getFood());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getMaze(), getPacmansState(), getGhostsState(), getFoodEaten(), getCapsulesEaten(),
-				getGhostsEaten(), getScore());
+		int result = Objects.hash(getPacmanX(), getPacmanY(), getPacmanDirection(), getGhostX(), getGhostY(), getGhostDirection());
+		result = 31 * result + Arrays.hashCode(getWalls());
+		result = 31 * result + Arrays.hashCode(getFood());
+		return result;
 	}
 	
 	@Override
 	public String toString() {
 		return "EtatPacmanMDPClassic{" +
-				"maze=" + maze +
-				", pacmansState=" + pacmansState +
-				", ghostsState=" + ghostsState +
-				", foodEaten=" + foodEaten +
-				", capsulesEaten=" + capsulesEaten +
-				", ghostsEaten=" + ghostsEaten +
-				", score=" + score +
+				"pacmanX=" + pacmanX +
+				", pacmanY=" + pacmanY +
+				", pacmanDirection=" + pacmanDirection +
+				", ghostX=" + ghostX +
+				", ghostY=" + ghostY +
+				", ghostDirection=" + ghostDirection +
+				", walls=" + Arrays.toString(walls) +
+				", food=" + Arrays.toString(food) +
 				'}';
 	}
 }
