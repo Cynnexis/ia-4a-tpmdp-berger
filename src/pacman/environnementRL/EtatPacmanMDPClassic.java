@@ -1,30 +1,28 @@
 package pacman.environnementRL;
 
-import java.lang.reflect.Array;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javafx.stage.Stage;
+import environnement.Etat;
 import javafx.util.Pair;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pacman.elements.ActionPacman;
 import pacman.elements.MazePacman;
 import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
-import environnement.Etat;
 
-import javax.swing.plaf.nimbus.State;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Classe pour définir un etat du MDP pour l'environnement pacman avec QLearning tabulaire
  */
 public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
-	private int distancePacmanGhost;
+	private Integer distancePacmanGhostX;
+	private Integer distancePacmanGhostY;
 	private int distancePacmanFood;
-	private int directionToClosestGhost;
-	private int directionToClosestFood;
+	private Integer directionToClosestFood;
 	
 	public EtatPacmanMDPClassic(@NotNull final StateGamePacman state){
 		// VOTRE CODE
@@ -49,16 +47,14 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		);
 		
 		// Compute distance between pacman and the closest ghost
-		setDistancePacmanGhost((int)
-				// Cast from double to integer through round()
-				Math.round(
-						// Get the closest ghost from pacman
-						Objects.requireNonNull(ghostDistance).getValue()
-				)
-		);
-		
-		// Compute the direction from pacman to the nearest ghost
-		setDirectionToClosestGhost(getDirection(pacman, ghostDistance.getKey()));
+		if (computeDistance(pacman, ghostDistance.getKey(), Distance.MANHATTAN) <= 4) {
+			setDistancePacmanGhostX(pacman.getX() - ghostDistance.getKey().getX());
+			setDistancePacmanGhostY(pacman.getY() - ghostDistance.getKey().getY());
+		}
+		else {
+			setDistancePacmanGhostX(null);
+			setDistancePacmanGhostY(null);
+		}
 		
 		// Compute the distance between pacman and the closest food
 		boolean[][] f = new boolean[state.getMaze().getSizeX()][state.getMaze().getSizeY()];
@@ -79,7 +75,11 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			));
 			
 			// Compute the direction from pacman to the nearest food
-			setDirectionToClosestFood(getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey()));
+			int direction = getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey());
+			if (state.isLegalMove(new ActionPacman(direction), pacman))
+				setDirectionToClosestFood(getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey()));
+			else
+				setDirectionToClosestFood(null);
 		}
 		else {
 			setDistancePacmanFood(0);
@@ -89,9 +89,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		System.out.println(this);
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
-		setDistancePacmanGhost(etat.getDistancePacmanGhost());
+		setDistancePacmanGhostX(etat.getDistancePacmanGhostX());
+		setDistancePacmanGhostY(etat.getDistancePacmanGhostY());
 		setDistancePacmanFood(etat.getDistancePacmanFood());
-		setDirectionToClosestGhost(etat.getDirectionToClosestGhost());
 		setDirectionToClosestFood(etat.getDirectionToClosestFood());
 	}
 	
@@ -241,8 +241,8 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * invertDirection(STOP) = STOP
 	 * invertDirection(36) = 36
 	 * </pre>
-	 * @param direction
-	 * @return
+	 * @param direction The direction to invert.
+	 * @return Return the invert.
 	 */
 	@Contract(pure = true)
 	public static int invertDirection(int direction) {
@@ -289,12 +289,22 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	/* GETTERS & SETTERS */
 	
-	public int getDistancePacmanGhost() {
-		return distancePacmanGhost;
+	@Nullable
+	public Integer getDistancePacmanGhostX() {
+		return distancePacmanGhostX;
 	}
 	
-	public void setDistancePacmanGhost(int distancePacmanGhost) {
-		this.distancePacmanGhost = distancePacmanGhost;
+	public void setDistancePacmanGhostX(@Nullable Integer distancePacmanGhostX) {
+		this.distancePacmanGhostX = distancePacmanGhostX;
+	}
+	
+	@Nullable
+	public Integer getDistancePacmanGhostY() {
+		return distancePacmanGhostY;
+	}
+	
+	public void setDistancePacmanGhostY(@Nullable Integer distancePacmanGhostY) {
+		this.distancePacmanGhostY = distancePacmanGhostY;
 	}
 	
 	public int getDistancePacmanFood() {
@@ -305,19 +315,12 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		this.distancePacmanFood = distancePacmanFood;
 	}
 	
-	public int getDirectionToClosestGhost() {
-		return directionToClosestGhost;
-	}
-	
-	public void setDirectionToClosestGhost(int directionToClosestGhost) {
-		this.directionToClosestGhost = directionToClosestGhost;
-	}
-	
-	public int getDirectionToClosestFood() {
+	@Nullable
+	public Integer getDirectionToClosestFood() {
 		return directionToClosestFood;
 	}
 	
-	public void setDirectionToClosestFood(int directionToClosestFood) {
+	public void setDirectionToClosestFood(@Nullable Integer directionToClosestFood) {
 		this.directionToClosestFood = directionToClosestFood;
 	}
 	
@@ -339,21 +342,21 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
-		return getDistancePacmanGhost() == that.getDistancePacmanGhost() &&
+		return Objects.equals(getDistancePacmanGhostX(), that.getDistancePacmanGhostX()) &&
+				Objects.equals(getDistancePacmanGhostY(), that.getDistancePacmanGhostY()) &&
 				getDistancePacmanFood() == that.getDistancePacmanFood() &&
-				getDirectionToClosestGhost() == that.getDirectionToClosestGhost() &&
-				getDirectionToClosestFood() == that.getDirectionToClosestFood();
+				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getDistancePacmanGhost(), getDistancePacmanFood(), getDirectionToClosestGhost(),
-				getDirectionToClosestFood());
+		return Objects.hash(getDistancePacmanGhostX(), getDistancePacmanGhostY(), getDistancePacmanFood(), getDirectionToClosestFood());
 	}
+	
 	
 	@Override
 	public String toString() {
-		return "ghost: " + directionCodeToString(getDirectionToClosestGhost()) + getDistancePacmanGhost() + ", " +
-				"food: " + directionCodeToString(getDirectionToClosestFood()) + getDistancePacmanFood();
+		return "ghost: (" + getDistancePacmanGhostX() + " ; " + getDistancePacmanGhostY() + "), " +
+				"food: " + (getDirectionToClosestFood() != null ? directionCodeToString(getDirectionToClosestFood()) : "(null)") + getDistancePacmanFood();
 	}
 }
