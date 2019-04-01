@@ -25,7 +25,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	private int distancePacmanFood;
 	private int directionToClosestGhost;
 	private int directionToClosestFood;
-	private int directionPacman;
 	
 	public EtatPacmanMDPClassic(@NotNull final StateGamePacman state){
 		// VOTRE CODE
@@ -87,9 +86,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			setDirectionToClosestFood(MazePacman.STOP);
 		}
 		
-		// Get pacman direction
-		setDirectionPacman(pacman.getDirection());
-		
 		System.out.println(this);
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
@@ -108,7 +104,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @param distance The type of distance to compute.
 	 * @return Return the distance between `a` and `b`.
 	 */
-	public double computeDistance(@NotNull StateAgentPacman a, @NotNull StateAgentPacman b, @NotNull Distance distance) {
+	public static double computeDistance(@NotNull StateAgentPacman a, @NotNull StateAgentPacman b, @NotNull Distance distance) {
 		switch (distance) {
 			case EUCLIDEAN:
 				return Math.sqrt(
@@ -133,8 +129,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @param distanceType The type of distance to use. By default, the euclidean distance is used.
 	 * @return Return the closest agent.
 	 */
-	@Nullable
-	public Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> othersAgent, @NotNull Distance distanceType) {
+	@NotNull
+	@Contract("_, _, _ -> new")
+	public static Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> othersAgent, @NotNull Distance distanceType) {
 		StateAgentPacman closestAgent = null;
 		double minDistance = Double.MAX_VALUE;
 		
@@ -155,8 +152,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @param othersAgent The others agent that must be parsed. `reference` must NOT be in this list.
 	 * @return Return the closest agent.
 	 */
-	@Nullable
-	public Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> othersAgent) {
+	@NotNull
+	@Contract("_, _ -> new")
+	public static Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> othersAgent) {
 		return getClosestAgent(reference, othersAgent, Distance.EUCLIDEAN);
 	}
 	
@@ -166,8 +164,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @param agent The agent where `reference` wants to reach.
 	 * @return Return the direction.
 	 */
-	@NotNull
-	public int getDirection(@NotNull StateAgentPacman reference, @NotNull StateAgentPacman agent) {
+	public static int getDirection(@NotNull StateAgentPacman reference, @NotNull StateAgentPacman agent) {
 		int deltaX = reference.getX() - agent.getX();
 		int deltaY = reference.getY() - agent.getY();
 		
@@ -197,7 +194,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @return A list of state.
 	 */
 	@NotNull
-	public ArrayList<StateAgentPacman> convertBooleanArrayToStates(@NotNull boolean[][] map) {
+	public static ArrayList<StateAgentPacman> convertBooleanArrayToStates(@NotNull boolean[][] map) {
 		ArrayList<StateAgentPacman> states = new ArrayList<>();
 		
 		for (int x = 0; x < map.length; x++)
@@ -214,7 +211,8 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 * @return Return the string representation of the direction. If the direction is invalid, return null.
 	 */
 	@Nullable
-	public String directionCodeToString(int direction) {
+	@Contract(pure = true)
+	public static String directionCodeToString(int direction) {
 		switch (direction) {
 			case MazePacman.NORTH:
 				return "▲";
@@ -229,6 +227,64 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			default:
 				return null;
 		}
+	}
+	
+	/**
+	 * Invert the direction.
+	 *
+	 * Example:
+	 * <pre>
+	 * invertDirection(NORTH) = SOUTH
+	 * invertDirection(SOUTH) = NORTH
+	 * invertDirection(EAST) = WEST
+	 * invertDirection(WEST) = EAST
+	 * invertDirection(STOP) = STOP
+	 * invertDirection(36) = 36
+	 * </pre>
+	 * @param direction
+	 * @return
+	 */
+	@Contract(pure = true)
+	public static int invertDirection(int direction) {
+		switch (direction) {
+			case MazePacman.NORTH:
+				return MazePacman.SOUTH;
+			case MazePacman.EAST:
+				return MazePacman.WEST;
+			case MazePacman.SOUTH:
+				return MazePacman.NORTH;
+			case MazePacman.WEST:
+				return MazePacman.EAST;
+			default:
+				return direction;
+		}
+	}
+	
+	/**
+	 * Find the closest agent in the given direction.
+	 * @param reference The reference.
+	 * @param otherAgents The other agents. `reference` must not be in this list.
+	 * @param direction The direction where to search.
+	 * @return Return the closest agent in the given direction and its distance. If there is no such agent, or the direction is wrong, return null as key.
+	 */
+	@NotNull
+	@Contract("_, _, _, _ -> new")
+	public static Pair<StateAgentPacman, Double> getClosestAgentInDirection(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> otherAgents, int direction, @NotNull Distance distanceType) {
+		StateAgentPacman closestAgent = null;
+		double minDistance = Double.MAX_VALUE;
+		
+		for (StateAgentPacman agent : otherAgents) {
+			if (getDirection(reference, agent) == direction) {
+				double distance = computeDistance(reference, agent, distanceType);
+				
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestAgent = agent;
+				}
+			}
+		}
+		
+		return new Pair<>(closestAgent, minDistance);
 	}
 	
 	/* GETTERS & SETTERS */
@@ -265,14 +321,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		this.directionToClosestFood = directionToClosestFood;
 	}
 	
-	public int getDirectionPacman() {
-		return directionPacman;
-	}
-	
-	public void setDirectionPacman(int directionPacman) {
-		this.directionPacman = directionPacman;
-	}
-	
 	/* OVERRIDES */
 	
 	@Override
@@ -286,6 +334,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	}
 	
 	@Override
+	@Contract(value = "null -> false", pure = true)
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
@@ -293,19 +342,18 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		return getDistancePacmanGhost() == that.getDistancePacmanGhost() &&
 				getDistancePacmanFood() == that.getDistancePacmanFood() &&
 				getDirectionToClosestGhost() == that.getDirectionToClosestGhost() &&
-				getDirectionToClosestFood() == that.getDirectionToClosestFood() &&
-				getDirectionPacman() == that.getDirectionPacman();
+				getDirectionToClosestFood() == that.getDirectionToClosestFood();
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getDistancePacmanGhost(), getDistancePacmanFood(), getDirectionToClosestGhost(), getDirectionToClosestFood(), getDirectionPacman());
+		return Objects.hash(getDistancePacmanGhost(), getDistancePacmanFood(), getDirectionToClosestGhost(),
+				getDirectionToClosestFood());
 	}
 	
 	@Override
 	public String toString() {
-		return "pac: " + directionCodeToString(getDirectionPacman()) + ", " +
-				"ghost: " + directionCodeToString(getDirectionToClosestGhost()) + getDistancePacmanGhost() + ", " +
+		return "ghost: " + directionCodeToString(getDirectionToClosestGhost()) + getDistancePacmanGhost() + ", " +
 				"food: " + directionCodeToString(getDirectionToClosestFood()) + getDistancePacmanFood();
 	}
 }
