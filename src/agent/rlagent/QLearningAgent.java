@@ -161,7 +161,7 @@ public class QLearningAgent extends RLAgent {
 		// VOTRE CODE
 		setQValeur(e, a, (1 - getAlpha()) * getQValeur(e, a) + getAlpha() * (reward + getGamma() * getValeur(esuivant)));
 		
-		System.out.println("Nombre d'état: " + qvaleurs.keySet().size());
+		//System.out.println("Nombre d'état: " + qvaleurs.keySet().size());
 	}
 	
 	@Override

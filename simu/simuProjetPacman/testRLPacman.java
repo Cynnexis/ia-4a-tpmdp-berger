@@ -150,7 +150,7 @@ public class testRLPacman extends Application{
 		System.out.println("PACMAN  greedy gagne "+nbwin+ " fois sur "+nbmean*nbepisodegreedy+" : "+ (nbwin*100/(nbmean*nbepisodegreedy))+"%");
 		if (DISPLAYPACMANGAME){
 			//pour voir jeu pacman en mode greedy
-			pacmanmdp.getGamepacman().setStep_delay(300);
+			pacmanmdp.getGamepacman().setStep_delay(300); // Default: 300ms
 			frame.setVisible(true);
 			rlagent.DISPEPISODE = false;
 			rlagent.runEpisode(nbepisodegreedydisplay);//runEpisode {while !etatabsorbant}	

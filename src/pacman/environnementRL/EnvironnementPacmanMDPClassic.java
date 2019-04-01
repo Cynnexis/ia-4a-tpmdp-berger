@@ -91,7 +91,6 @@ public class EnvironnementPacmanMDPClassic extends EnvironnementPacmanRL {
 			gamepacman.setState(gamestate);
 			this.etatcourant = new EtatPacmanMDPClassic(gamepacman.getState());
 		} catch (MazeException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
 	}

@@ -29,11 +29,11 @@ public class MazePacman
 	/** 
 	 * Les differentes directions possibles pour les actions
 	 */
-	public static int NORTH=0;
-	public static int SOUTH=1;
-	public static int EAST=2;
-	public static int WEST=3;
-	public static int STOP=4;
+	public final static int NORTH=0;
+	public final static int SOUTH=1;
+	public final static int EAST=2;
+	public final static int WEST=3;
+	public final static int STOP=4;
 	
 	/** Largeur du labyrinthe**/
 	protected int size_x;

@@ -38,7 +38,7 @@ public abstract class EnvironnementPacmanRL extends Environnement {
 	 * Instancie methodes communes a environnement de type pacman, pour etre utilisable par AgentRL 
 	 * <li> attribut etat complet du jeu pour MDP, avec des fantomes random
      * <li> le jeu de pacman
-	 * @param filename
+	 * @param _filename
 	 * @param _isghostrandom pour agent fantomes aleatoires, sinon sont static
 	 * @throws MazeException
 	 */
