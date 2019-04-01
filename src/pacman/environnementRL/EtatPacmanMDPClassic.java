@@ -13,6 +13,7 @@ import pacman.elements.StateGamePacman;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 /**
  * Classe pour définir un etat du MDP pour l'environnement pacman avec QLearning tabulaire
@@ -21,6 +22,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	private Integer distancePacmanGhostX;
 	private Integer distancePacmanGhostY;
+	private Integer directionPacmanAwayFromGhost;
 	private int distancePacmanFood;
 	private Integer directionToClosestFood;
 	
@@ -86,11 +88,43 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			setDirectionToClosestFood(MazePacman.STOP);
 		}
 		
+		// Compute the direction that will take pacman away from ghost
+		int direction = invertDirection(getDirection(pacman, ghostDistance.getKey()));
+		if (direction < 0 || 3 < direction)
+			setDirectionPacmanAwayFromGhost(null);
+		else {
+			// Check if the move is allowed. If not, go towards the food if possible
+			if (!state.isLegalMove(new ActionPacman(direction), pacman)) {
+				// If the (illegal) action is to go north or south...
+				if (direction == MazePacman.NORTH || direction == MazePacman.SOUTH) {
+					// If the food is east or west, use it as a direction away from the ghost
+					if (Objects.equals(getDirectionToClosestFood(), MazePacman.EAST) || Objects.equals(getDirectionToClosestFood(), MazePacman.WEST))
+						direction = getDirectionToClosestFood();
+					// Else, choose randomly
+					else
+						direction = new Random().nextBoolean() ? MazePacman.EAST : MazePacman.WEST;
+				}
+				// If the (illegal) action is to go east or west...
+				else {
+					// If the food is north or south, use it as a direction away from the ghost
+					if (Objects.equals(getDirectionToClosestFood(), MazePacman.NORTH) || Objects.equals(getDirectionToClosestFood(), MazePacman.SOUTH))
+						direction = getDirectionToClosestFood();
+						// Else, choose randomly
+					else
+						direction = new Random().nextBoolean() ? MazePacman.NORTH : MazePacman.SOUTH;
+				}
+			}
+			
+			// Apply the direction
+			setDirectionPacmanAwayFromGhost(direction);
+		}
+		
 		System.out.println(this);
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
 		setDistancePacmanGhostX(etat.getDistancePacmanGhostX());
 		setDistancePacmanGhostY(etat.getDistancePacmanGhostY());
+		setDirectionPacmanAwayFromGhost(etat.getDirectionPacmanAwayFromGhost());
 		setDistancePacmanFood(etat.getDistancePacmanFood());
 		setDirectionToClosestFood(etat.getDirectionToClosestFood());
 	}
@@ -173,7 +207,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			return MazePacman.STOP;
 		
 		// If the X-difference is greater than the Y-difference, choose either EAST or WEST
-		if (Math.abs(deltaX) > Math.abs(deltaY)) {
+		if (Math.abs(deltaX) >= Math.abs(deltaY)) {
 			if (deltaX > 0)
 				return MazePacman.WEST;
 			else
@@ -307,6 +341,15 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		this.distancePacmanGhostY = distancePacmanGhostY;
 	}
 	
+	@Nullable
+	public Integer getDirectionPacmanAwayFromGhost() {
+		return directionPacmanAwayFromGhost;
+	}
+	
+	public void setDirectionPacmanAwayFromGhost(@Nullable Integer directionPacmanAwayFromGhost) {
+		this.directionPacmanAwayFromGhost = directionPacmanAwayFromGhost;
+	}
+	
 	public int getDistancePacmanFood() {
 		return distancePacmanFood;
 	}
@@ -342,21 +385,22 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
-		return Objects.equals(getDistancePacmanGhostX(), that.getDistancePacmanGhostX()) &&
+		return getDistancePacmanFood() == that.getDistancePacmanFood() &&
+				Objects.equals(getDistancePacmanGhostX(), that.getDistancePacmanGhostX()) &&
 				Objects.equals(getDistancePacmanGhostY(), that.getDistancePacmanGhostY()) &&
-				getDistancePacmanFood() == that.getDistancePacmanFood() &&
+				Objects.equals(getDirectionPacmanAwayFromGhost(), that.getDirectionPacmanAwayFromGhost()) &&
 				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getDistancePacmanGhostX(), getDistancePacmanGhostY(), getDistancePacmanFood(), getDirectionToClosestFood());
+		return Objects.hash(getDistancePacmanGhostX(), getDistancePacmanGhostY(), getDirectionPacmanAwayFromGhost(), getDistancePacmanFood(), getDirectionToClosestFood());
 	}
-	
 	
 	@Override
 	public String toString() {
 		return "ghost: (" + getDistancePacmanGhostX() + " ; " + getDistancePacmanGhostY() + "), " +
-				"food: " + (getDirectionToClosestFood() != null ? directionCodeToString(getDirectionToClosestFood()) : "(null)") + getDistancePacmanFood();
+				"food: " + (getDirectionToClosestFood() != null ? directionCodeToString(getDirectionToClosestFood()) : "(null)") + getDistancePacmanFood() + ", " +
+				"pac should go " + (getDirectionPacmanAwayFromGhost() != null ? directionCodeToString(getDirectionPacmanAwayFromGhost()) : "(null)");
 	}
 }
