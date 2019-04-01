@@ -86,7 +86,15 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		// VOTRE CODE
-		return qvaleurs.getOrDefault(e, new HashMap<>()).getOrDefault(a, 0.);
+		if (!qvaleurs.containsKey(e))
+			qvaleurs.put(e, new HashMap<>());
+		
+		if (!qvaleurs.get(e).containsKey(a)) {
+			qvaleurs.get(e).put(a, 0.);
+			return 0.;
+		}
+		
+		return qvaleurs.get(e).get(a);
 	}
 	
 	
@@ -152,6 +160,8 @@ public class QLearningAgent extends RLAgent {
 		
 		// VOTRE CODE
 		setQValeur(e, a, (1 - getAlpha()) * getQValeur(e, a) + getAlpha() * (reward + getGamma() * getValeur(esuivant)));
+		
+		System.out.println("Nombre d'état: " + qvaleurs.keySet().size());
 	}
 	
 	@Override

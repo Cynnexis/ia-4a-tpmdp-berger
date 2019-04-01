@@ -88,7 +88,7 @@ public class EnvironnementPacmanMDPClassic extends EnvironnementPacmanRL {
 			gamestate = new StateGamePacman(new MazePacman(filename));
 			
 			//creation du jeu
-			gamepacman.setState(gamestate);			
+			gamepacman.setState(gamestate);
 			this.etatcourant = new EtatPacmanMDPClassic(gamepacman.getState());
 		} catch (MazeException e) {
 			// TODO Auto-generated catch block
