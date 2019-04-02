@@ -22,7 +22,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	private Integer distancePacmanGhostX;
 	private Integer distancePacmanGhostY;
 	private int distancePacmanFood;
-	private Integer directionToClosestFood;
+	private int directionToClosestFood;
 	
 	public EtatPacmanMDPClassic(@NotNull final StateGamePacman state){
 		// VOTRE CODE
@@ -315,12 +315,11 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		this.distancePacmanFood = distancePacmanFood;
 	}
 	
-	@Nullable
-	public Integer getDirectionToClosestFood() {
+	public int getDirectionToClosestFood() {
 		return directionToClosestFood;
 	}
 	
-	public void setDirectionToClosestFood(@Nullable Integer directionToClosestFood) {
+	public void setDirectionToClosestFood(int directionToClosestFood) {
 		this.directionToClosestFood = directionToClosestFood;
 	}
 	
@@ -355,13 +354,13 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		result = prime * result + (getDistancePacmanGhostX() != null ? getDistancePacmanGhostX() : 0);
 		result = prime * result + (getDistancePacmanGhostY() != null ? getDistancePacmanGhostY() : 0);
 		result = prime * result + getDistancePacmanFood();
-		result = prime * result + (getDirectionToClosestFood() != null ? getDirectionToClosestFood() : 0);
+		result = prime * result + getDirectionToClosestFood();
 		return result;
 	}
 	
 	@Override
 	public String toString() {
-		return "ghost: (" + getDistancePacmanGhostX() + " ; " + getDistancePacmanGhostY() + "), " +
-				"food: " + (getDirectionToClosestFood() != null ? directionCodeToString(getDirectionToClosestFood()) : "(null)") + getDistancePacmanFood();
+		return "ghost: (" + (getDistancePacmanGhostX() == null && getDistancePacmanGhostY() == null ? "null" : getDistancePacmanGhostX() + " ; " + getDistancePacmanGhostY()) + "), " +
+				"food: " + directionCodeToString(getDirectionToClosestFood()) + getDistancePacmanFood();
 	}
 }
