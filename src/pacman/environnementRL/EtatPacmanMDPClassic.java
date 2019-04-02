@@ -11,6 +11,7 @@ import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,8 +20,8 @@ import java.util.Objects;
  */
 public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
-	private Integer distancePacmanGhostX;
-	private Integer distancePacmanGhostY;
+	@NotNull
+	private ArrayList<Pair<Integer, Integer>> distancePacmanGhosts;
 	private int distancePacmanFood;
 	private int directionToClosestFood;
 	
@@ -33,27 +34,20 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		// Get pacman
 		StateAgentPacman pacman = state.getPacmanState(0);
 		
-		// Get the closest ghost
-		Pair<StateAgentPacman, Double> ghostDistance = getClosestAgent(
-				pacman,
-				// Create anonymously the list of ghosts
-				new ArrayList<StateAgentPacman>() {
-					{
-						for (int i = 0, maxi = state.getNumberOfGhosts(); i < maxi; i++)
-							add(state.getGhostState(i));
-					}
-				},
-				Distance.MANHATTAN
-		);
+		// Get the closest ghosts
+		distancePacmanGhosts = new ArrayList<>();
+		ArrayList<StateAgentPacman> ghosts = new ArrayList<StateAgentPacman>() {
+			{
+				for (int i = 0; i < state.getNumberOfGhosts(); i++)
+					add(state.getGhostState(i));
+			}
+		};
 		
-		// Compute distance between pacman and the closest ghost
-		if (computeDistance(pacman, ghostDistance.getKey(), Distance.MANHATTAN) <= 4) {
-			setDistancePacmanGhostX(pacman.getX() - ghostDistance.getKey().getX());
-			setDistancePacmanGhostY(pacman.getY() - ghostDistance.getKey().getY());
-		}
-		else {
-			setDistancePacmanGhostX(null);
-			setDistancePacmanGhostY(null);
+		for (StateAgentPacman ghost : ghosts) {
+			// If the distance between pacman and the ghost is less or equal to 4, add it to the list
+			if (computeDistance(pacman, ghost, Distance.MANHATTAN) <= 4) {
+				distancePacmanGhosts.add(new Pair<>(pacman.getX() - ghost.getX(), pacman.getY() - ghost.getY()));
+			}
 		}
 		
 		// Compute the distance between pacman and the closest food
@@ -89,8 +83,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		System.out.println(this);
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
-		setDistancePacmanGhostX(etat.getDistancePacmanGhostX());
-		setDistancePacmanGhostY(etat.getDistancePacmanGhostY());
+		setDistancePacmanGhosts(etat.getDistancePacmanGhosts());
 		setDistancePacmanFood(etat.getDistancePacmanFood());
 		setDirectionToClosestFood(etat.getDirectionToClosestFood());
 	}
@@ -289,22 +282,13 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	/* GETTERS & SETTERS */
 	
-	@Nullable
-	public Integer getDistancePacmanGhostX() {
-		return distancePacmanGhostX;
+	@NotNull
+	public ArrayList<Pair<Integer, Integer>> getDistancePacmanGhosts() {
+		return distancePacmanGhosts;
 	}
 	
-	public void setDistancePacmanGhostX(@Nullable Integer distancePacmanGhostX) {
-		this.distancePacmanGhostX = distancePacmanGhostX;
-	}
-	
-	@Nullable
-	public Integer getDistancePacmanGhostY() {
-		return distancePacmanGhostY;
-	}
-	
-	public void setDistancePacmanGhostY(@Nullable Integer distancePacmanGhostY) {
-		this.distancePacmanGhostY = distancePacmanGhostY;
+	public void setDistancePacmanGhosts(@NotNull ArrayList<Pair<Integer, Integer>> distancePacmanGhosts) {
+		this.distancePacmanGhosts = distancePacmanGhosts;
 	}
 	
 	public int getDistancePacmanFood() {
@@ -341,8 +325,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
-		return Objects.equals(getDistancePacmanGhostX(), that.getDistancePacmanGhostX()) &&
-				Objects.equals(getDistancePacmanGhostY(), that.getDistancePacmanGhostY()) &&
+		return getDistancePacmanGhosts().equals(((EtatPacmanMDPClassic) o).getDistancePacmanGhosts()) &&
 				getDistancePacmanFood() == that.getDistancePacmanFood() &&
 				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
 	}
@@ -351,8 +334,18 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
-		result = prime * result + (getDistancePacmanGhostX() != null ? getDistancePacmanGhostX() : 0);
-		result = prime * result + (getDistancePacmanGhostY() != null ? getDistancePacmanGhostY() : 0);
+		
+		if (!getDistancePacmanGhosts().isEmpty()) {
+			for (Pair<Integer, Integer> ghost : getDistancePacmanGhosts()) {
+				if (ghost == null)
+					getDistancePacmanGhosts().remove(ghost);
+				else {
+					result = prime * result + (ghost.getKey() != null ? ghost.getKey() : 0);
+					result = prime * result + (ghost.getValue() != null ? ghost.getValue() : 0);
+				}
+			}
+		}
+		
 		result = prime * result + getDistancePacmanFood();
 		result = prime * result + getDirectionToClosestFood();
 		return result;
@@ -360,7 +353,30 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	@Override
 	public String toString() {
-		return "ghost: (" + (getDistancePacmanGhostX() == null && getDistancePacmanGhostY() == null ? "null" : getDistancePacmanGhostX() + " ; " + getDistancePacmanGhostY()) + "), " +
-				"food: " + directionCodeToString(getDirectionToClosestFood()) + getDistancePacmanFood();
+		StringBuilder strb = new StringBuilder();
+		strb.append("ghost: ");
+		
+		if ((getDistancePacmanGhosts().isEmpty()))
+			strb.append("(null)");
+		else {
+			for (int i = 0, maxi = getDistancePacmanGhosts().size(); i < maxi; i++) {
+				strb.append("(")
+					.append(getDistancePacmanGhosts().get(i).getKey())
+					.append(" ; ")
+					.append(getDistancePacmanGhosts().get(i).getValue())
+					.append(")");
+				
+				if (i + 1 < maxi)
+					strb.append(" ");
+			}
+		}
+		
+		strb.append(", ");
+		
+		strb.append("food: ")
+			.append(directionCodeToString(getDirectionToClosestFood()))
+			.append(getDistancePacmanFood());
+		
+		return strb.toString();
 	}
 }
