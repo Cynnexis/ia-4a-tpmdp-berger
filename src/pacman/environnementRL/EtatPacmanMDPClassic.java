@@ -77,9 +77,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			// Compute the direction from pacman to the nearest food
 			int direction = getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey());
 			if (state.isLegalMove(new ActionPacman(direction), pacman))
-				setDirectionToClosestFood(getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey()));
+				setDirectionToClosestFood(direction);
 			else
-				setDirectionToClosestFood(null);
+				setDirectionToClosestFood(MazePacman.STOP);
 		}
 		else {
 			setDistancePacmanFood(0);
@@ -350,9 +350,14 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(getDistancePacmanGhostX(), getDistancePacmanGhostY(), getDistancePacmanFood(), getDirectionToClosestFood());
+		int prime = 31;
+		int result = 1;
+		result = prime * result + (getDistancePacmanGhostX() != null ? getDistancePacmanGhostX() : 0);
+		result = prime * result + (getDistancePacmanGhostY() != null ? getDistancePacmanGhostY() : 0);
+		result = prime * result + getDistancePacmanFood();
+		result = prime * result + (getDirectionToClosestFood() != null ? getDirectionToClosestFood() : 0);
+		return result;
 	}
-	
 	
 	@Override
 	public String toString() {
