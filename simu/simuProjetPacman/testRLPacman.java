@@ -106,8 +106,6 @@ public class testRLPacman extends Application{
 			frame.pack();
 			frame.setVisible(false);
 		}
-		
-
 	}
 
 	/** trace courbe moyenne sur plusieurs expe, affiche jeu pacman sur derniers episodes greedy de derniere expe */

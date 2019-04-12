@@ -51,10 +51,18 @@ public class QLearningAgent extends RLAgent {
 		}
 		
 		// VOTRE CODE
-		double result = getValeur(e);
+		double max = Double.NEGATIVE_INFINITY;
+		double current;
 		
-		for (Action a : this.getActionsLegales(e)) {
-			if (a != null && getQValeur(e, a) >= result)
+		for (Action a : env.getActionsPossibles(e)) {
+			current = getQValeur(e, a);
+			
+			if (max < current) {
+				actions.clear();
+				max = current;
+				actions.add(a);
+			}
+			else if (max == current)
 				actions.add(a);
 		}
 		
@@ -65,24 +73,21 @@ public class QLearningAgent extends RLAgent {
 	public double getValeur(Etat e) {
 		// VOTRE CODE
 		
-		double max = 0.;
-		HashMap<Action, Double> submap = qvaleurs.getOrDefault(e, new HashMap<>());
+		if (getActionsLegales(e).isEmpty())
+			return 0.;
+		
+		double max = Double.NEGATIVE_INFINITY;
+		double current;
 		
 		// For all action in `submap` (given by e1)
-		for (Action a : submap.keySet()) {
-			// If the given key leads to a null value, delete it
-			if (submap.getOrDefault(a, null) == null)
-				submap.remove(a);
-			// Else, compare to max
-			else {
-				if (submap.get(a) > max)
-					max = submap.get(a);
-			}
+		for (Action a : env.getActionsPossibles(e)) {
+			current = getQValeur(e, a);
+			if (max < current)
+				max = current;
 		}
 		
 		return max;
 	}
-	
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		// VOTRE CODE
@@ -108,9 +113,6 @@ public class QLearningAgent extends RLAgent {
 		// Add the new value
 		submap.put(a, d);
 		
-		// Add it to the hashmap qvaleurs
-		qvaleurs.put(e, submap);
-		
 		// mise a jour vmax et vmin pour affichage du gradient de couleur:
 		// vmax est la valeur de max pour tout s de V
 		// vmin est la valeur de min pour tout s de V
@@ -118,26 +120,21 @@ public class QLearningAgent extends RLAgent {
 		
 		// For all state in `qvaleurs`
 		for (Etat e1 : qvaleurs.keySet()) {
-			// If the given key leads to a null value, delete it
-			if (qvaleurs.getOrDefault(e1, null) == null)
-				qvaleurs.remove(e1);
-			// Else, iterate over the action on the given submap
-			else {
-				submap = qvaleurs.get(e1);
-				
-				// For all action in `submap` (given by e1)
-				for (Action a1 : submap.keySet()) {
-					// If the given key leads to a null value, delete it
-					if (submap.getOrDefault(a1, null) == null)
-						submap.remove(a1);
-					// Else, compare to vmin and vmax
-					else {
-						if (submap.get(a1) < this.vmin)
-							this.vmin = submap.get(a1);
-						
-						if (submap.get(a1) > this.vmax)
-							this.vmax = submap.get(a1);
-					}
+			// Iterate over the action on the given submap
+			submap = qvaleurs.get(e1);
+			
+			// For all action in `submap` (given by e1)
+			for (Action a1 : submap.keySet()) {
+				// If the given key leads to a null value, delete it
+				if (submap.getOrDefault(a1, null) == null)
+					submap.remove(a1);
+				// Else, compare to vmin and vmax
+				else {
+					if (submap.get(a1) < this.vmin)
+						this.vmin = submap.get(a1);
+					
+					if (submap.get(a1) > this.vmax)
+						this.vmax = submap.get(a1);
 				}
 			}
 		}

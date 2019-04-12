@@ -23,6 +23,11 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	public static final int TILE_RADIUS_GHOST_DETECTOR = 4;
 	
 	/**
+	 * The pacman's position
+	 */
+	private Pair<Integer, Integer> pacmanPos;
+	
+	/**
 	 * List of all the distances from pacman to close ghosts. Each item of the list is a pair (x ; y) that corresponds
 	 * to the distance on x-axis and y-axis.
 	 */
@@ -52,6 +57,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		
 		// Get pacman
 		StateAgentPacman pacman = state.getPacmanState(0);
+		
+		// Get pacman's position
+		pacmanPos = new Pair<>(pacman.getX(), pacman.getY());
 		
 		// Get the closest ghosts and compute their distances from pacman, and the direction
 		distancePacmanGhosts = new ArrayList<>();
@@ -305,6 +313,15 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	/* GETTERS & SETTERS */
 	
 	@NotNull
+	public Pair<Integer, Integer> getPacmanPos() {
+		return pacmanPos;
+	}
+	
+	public void setPacmanPos(@NotNull Pair<Integer, Integer> pacmanPos) {
+		this.pacmanPos = pacmanPos;
+	}
+	
+	@NotNull
 	public ArrayList<Pair<Integer, Integer>> getDistancePacmanGhosts() {
 		return distancePacmanGhosts;
 	}
@@ -356,7 +373,8 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (this == o) return true;
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
-		return getDistancePacmanGhosts().equals(that.getDistancePacmanGhosts()) &&
+		return getPacmanPos().equals(that.getPacmanPos()) &&
+				getDistancePacmanGhosts().equals(that.getDistancePacmanGhosts()) &&
 				getDirectionToGhosts().equals(that.getDirectionToGhosts()) &&
 				getDistancePacmanFood() == that.getDistancePacmanFood() &&
 				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
@@ -366,6 +384,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	public int hashCode() {
 		int prime = 31;
 		int result = 1;
+		
+		result = prime * result + (getPacmanPos().getKey() != null ? getPacmanPos().getKey() : 0);
+		result = prime * result + (getPacmanPos().getValue() != null ? getPacmanPos().getValue() : 0);
 		
 		if (!getDistancePacmanGhosts().isEmpty()) {
 			for (Pair<Integer, Integer> ghost : getDistancePacmanGhosts()) {

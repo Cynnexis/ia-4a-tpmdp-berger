@@ -80,8 +80,7 @@ public abstract class EnvironnementPacmanRL extends Environnement {
 		// TODO Auto-generated method stub
 		return null;//utile que pour la recherche donc pas a faire ici
 	}
-
-
+	
 	@Override
 	public boolean estAbsorbant() {
 		return (gamepacman.getState().isLose()) || (gamepacman.getState().isWin());
