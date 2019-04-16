@@ -91,8 +91,11 @@ public class QLearningAgent extends RLAgent {
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		// VOTRE CODE
-		if (!qvaleurs.containsKey(e))
+		if (qvaleurs.getOrDefault(e, null) == null)
 			qvaleurs.put(e, new HashMap<>());
+		
+		if (qvaleurs.getOrDefault(e, null) == null)
+			throw new NullPointerException("The hashcode of the state is not valid: The program cannot use the instance as key in a HashMap.\n\tClass: " + e.getClass().getSimpleName() + "\n\tHash code: " + e.hashCode());
 		
 		if (!qvaleurs.get(e).containsKey(a)) {
 			qvaleurs.get(e).put(a, 0.);
@@ -101,7 +104,6 @@ public class QLearningAgent extends RLAgent {
 		
 		return qvaleurs.get(e).get(a);
 	}
-	
 	
 	@Override
 	public void setQValeur(Etat e, Action a, double d) {

@@ -46,6 +46,9 @@ public abstract class RLAgent extends ValueAgent implements IRLAgent,Observer{
 	protected double sumrecepisode = 0.0;
 	
 	public static boolean DISPRL = false;
+	
+	public static boolean DISPETAT = false;
+	
 	/**
 	 * Strategie d'exploration choisie pour les episodes d'apprentissages 
 	 */
@@ -123,14 +126,13 @@ public abstract class RLAgent extends ValueAgent implements IRLAgent,Observer{
 			startEpisode();//sumrec remis a 0
 			
 			while (!env.estAbsorbant() && this.nbpasparepisode<=this.maxnbpasparepisode){
-				this.runOneStep();				
+				this.runOneStep();
 			}
 			
 			this.endEpisode();
-			
 		}
-		
 	}
+	
 	/**
 	 * lance un pas de l'episode, sans verification sur etat absorbant, ...
 	 *  <li> execute action de this sur etat courant de l'environnement {@link Environnement#doAction}
@@ -140,6 +142,8 @@ public abstract class RLAgent extends ValueAgent implements IRLAgent,Observer{
 		Etat etat= env.getEtatCourant();
 		Action act = this.getAction(etat);	//modif de etat courant de environnement
 		env.doAction(act) ; //env notifie son observateur (agent) de la recompense et fait alors update dans lequel endStep
+		if (DISPETAT)
+			System.out.println(etat);
 	}
 
 	/**

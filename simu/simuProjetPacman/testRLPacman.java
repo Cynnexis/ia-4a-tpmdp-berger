@@ -13,22 +13,16 @@ import javafx.stage.Stage;
 
 import javax.swing.JFrame;
 
-import pacman.environnementRL.EnvironnementPacmanFeatureRL;
 import pacman.environnementRL.EnvironnementPacmanMDPClassic;
 import pacman.environnementRL.EnvironnementPacmanRL;
-import pacman.environnementRL.EtatPacmanMDPClassic;
 import pacman.graphics.GamePacmanPanel;
 import agent.rlagent.QLearningAgent;
 import agent.rlagent.RLAgent;
-import agent.rlapproxagent.FeatureFunction;
-import agent.rlapproxagent.FeatureFunctionIdentity;
-import agent.rlapproxagent.FeatureFunctionPacman;
-import agent.rlapproxagent.QLApproxAgent;
 import agent.strategy.StrategyExplorationTest1;
 
 public class testRLPacman extends Application{
 	/** type de labyrinthe pour le jeu de pacman*/
-	static String mazename = "pacmanlayouts/smallGrid.lay";//smallGrid smallGrid2 mediumGrid
+	static String mazename = "pacmanlayouts/mediumGrid.lay";//smallGrid smallGrid2 mediumGrid
 
 	// parametres RL*/
 	static double gamma=0.8;
@@ -37,7 +31,7 @@ public class testRLPacman extends Application{
 	
 	// parametres experience a lancer, un episode = une partie */
 	/** nombre d'experiences a lancer (pour faire une moyenne), une experience est un apprentissage sur plusieurs parties */
-	static int nbmean = 3;
+	static int nbmean = 1;
 	/** nombre de parties ou l'agent apprend */
 	static int nbepisodelearn = 500;
 	/** nombre de partie ou l'agent exploite la politique apprise (epsilon=0) */
@@ -148,9 +142,16 @@ public class testRLPacman extends Application{
 		System.out.println("PACMAN  greedy gagne "+nbwin+ " fois sur "+nbmean*nbepisodegreedy+" : "+ (nbwin*100/(nbmean*nbepisodegreedy))+"%");
 		if (DISPLAYPACMANGAME){
 			//pour voir jeu pacman en mode greedy
-			pacmanmdp.getGamepacman().setStep_delay(300); // Default: 300ms
+			pacmanmdp.getGamepacman().setStep_delay(100); // Default: 300ms
 			frame.setVisible(true);
-			rlagent.DISPEPISODE = false;
+			try {
+				//noinspection AccessStaticViaInstance
+				rlagent.DISPEPISODE = false;
+				//noinspection AccessStaticViaInstance
+				rlagent.DISPETAT = true;
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
 			rlagent.runEpisode(nbepisodegreedydisplay);//runEpisode {while !etatabsorbant}	
 		}
 
