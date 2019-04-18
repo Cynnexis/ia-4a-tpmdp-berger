@@ -17,7 +17,7 @@ import java.util.*;
  */
 public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
-	public static final int TILE_RADIUS_GHOST_DETECTOR = 4;
+	public static final int TILE_RADIUS_GHOST_DETECTOR = 3;
 	
 	/**
 	 * The pacman's position
@@ -143,8 +143,22 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			int direction = getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey());
 			if (isLegalMove(direction))
 				setDirectionToClosestFood(direction);
-			else
-				setDirectionToClosestFood(MazePacman.STOP);
+			else {
+				// If the direction is not legal, take another one randomly, and perpendicular to `direction`:
+				int iter = 0;
+				do {
+					if (direction == MazePacman.NORTH || direction == MazePacman.SOUTH)
+						setDirectionToClosestFood(new Random().nextBoolean() ? MazePacman.EAST : MazePacman.WEST);
+					else
+						setDirectionToClosestFood(new Random().nextBoolean() ? MazePacman.NORTH : MazePacman.SOUTH);
+					
+					iter++;
+					if (iter >= 100) {
+						setDirectionToClosestFood(MazePacman.STOP);
+						break;
+					}
+				} while (!isLegalMove(getDirectionToClosestFood()));
+			}
 		}
 		else
 			setDirectionToClosestFood(MazePacman.STOP);
