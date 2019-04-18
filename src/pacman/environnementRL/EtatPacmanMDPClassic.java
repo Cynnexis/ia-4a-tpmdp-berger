@@ -10,10 +10,7 @@ import pacman.elements.MazePacman;
 import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Classe pour définir un etat du MDP pour l'environnement pacman avec QLearning tabulaire
@@ -40,6 +37,11 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	private ArrayList<Integer> directionToGhosts;
 	
 	/**
+	 * Direction to take for pacman to go away from ghosts
+	 */
+	private ArrayList<Integer> directionAwayFromGhosts;
+	
+	/**
 	 * Distance from pacman to closest dot food.
 	 */
 	private int distancePacmanFood;
@@ -49,14 +51,25 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	 */
 	private int directionToClosestFood;
 	
+	/**
+	 * The current state game. It is NOT included in the hash code and the equals method.
+	 */
+	private StateGamePacman state;
+	
+	/**
+	 * The coordinates of pacman in the grid. It is NOT included in the hash code and the equals method.
+	 */
+	private StateAgentPacman pacman;
+	
 	public EtatPacmanMDPClassic(@NotNull final StateGamePacman state){
 		// VOTRE CODE
+		this.state = state;
 		
 		if (state.getNumberOfPacmans() != 1)
 			System.err.println("EtatPacmanMDPClassic> Strange number of pacman: " + state.getNumberOfPacmans());
 		
 		// Get pacman
-		StateAgentPacman pacman = state.getPacmanState(0);
+		pacman = state.getPacmanState(0);
 		
 		// Get pacman's position
 		pacmanPos = new Pair<>(pacman.getX(), pacman.getY());
@@ -64,21 +77,58 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		// Get the closest ghosts and compute their distances from pacman, and the direction
 		distancePacmanGhosts = new ArrayList<>();
 		directionToGhosts = new ArrayList<>();
+		directionAwayFromGhosts = new ArrayList<>();
 		
 		for (int i = 0; i < state.getNumberOfGhosts(); i++) {
 			StateAgentPacman ghost = state.getGhostState(i);
 			// If the distance between pacman and the ghost is less or equal to 4, add it to the list
 			if (computeDistance(pacman, ghost, Distance.MANHATTAN) <= TILE_RADIUS_GHOST_DETECTOR) {
+				// Compute the distance
 				distancePacmanGhosts.add(new Pair<>(
 						pacman.getX() - ghost.getX(),
 						pacman.getY() - ghost.getY()
 				));
 				
+				// Compute the direction
 				int direction = getDirection(pacman, ghost);
-				if (state.isLegalMove(new ActionPacman(direction), pacman))
+				if (isLegalMove(direction))
 					directionToGhosts.add(direction);
 				else
 					directionToGhosts.add(MazePacman.STOP);
+				
+				// Compute direction that will take pacman away from the ghost
+				int iDirection = invertDirection(direction);
+				
+				if (iDirection < 0 || 3 < iDirection)
+					directionAwayFromGhosts.add(MazePacman.STOP);
+				else {
+					// Check if the move is allowed. If not, go towards the food if possible
+					if (!isLegalMove(iDirection)) {
+						// If the (illegal) action is to go north or south...
+						if (iDirection == MazePacman.NORTH || iDirection == MazePacman.SOUTH) {
+							// If the food is east or west, use it as a direction away from the ghost
+							if (Objects.equals(getDirectionToClosestFood(), MazePacman.EAST) ||
+									Objects.equals(getDirectionToClosestFood(), MazePacman.WEST))
+								iDirection = getDirectionToClosestFood();
+								// Else, choose randomly
+							else
+								iDirection = new Random().nextBoolean() ? MazePacman.EAST : MazePacman.WEST;
+						}
+						// If the (illegal) action is to go east or west...
+						else {
+							// If the food is north or south, use it as a direction away from the ghost
+							if (Objects.equals(getDirectionToClosestFood(), MazePacman.NORTH) ||
+									Objects.equals(getDirectionToClosestFood(), MazePacman.SOUTH))
+								iDirection = getDirectionToClosestFood();
+								// Else, choose randomly
+							else
+								iDirection = new Random().nextBoolean() ? MazePacman.NORTH : MazePacman.SOUTH;
+						}
+					}
+					
+					// Apply the direction
+					directionAwayFromGhosts.add(iDirection);
+				}
 			}
 		}
 		
@@ -102,7 +152,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			
 			// Compute the direction from pacman to the nearest food
 			int direction = getDirection(pacman, Objects.requireNonNull(getClosestAgent(pacman, foods)).getKey());
-			if (state.isLegalMove(new ActionPacman(direction), pacman))
+			if (isLegalMove(direction))
 				setDirectionToClosestFood(direction);
 			else
 				setDirectionToClosestFood(MazePacman.STOP);
@@ -111,11 +161,11 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			setDistancePacmanFood(0);
 			setDirectionToClosestFood(MazePacman.STOP);
 		}
-		
-		//System.out.println(this);
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
 		setDistancePacmanGhosts(etat.getDistancePacmanGhosts());
+		setDirectionToGhosts(etat.getDirectionToGhosts());
+		setDirectionAwayFromGhosts(etat.getDirectionAwayFromGhosts());
 		setDistancePacmanFood(etat.getDistancePacmanFood());
 		setDirectionToClosestFood(etat.getDirectionToClosestFood());
 	}
@@ -312,6 +362,13 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		return new Pair<>(closestAgent, minDistance);
 	}
 	
+	public boolean isLegalMove(int direction, @NotNull StateAgentPacman reference) {
+		return state.isLegalMove(new ActionPacman(direction), reference);
+	}
+	public boolean isLegalMove(int direction) {
+		return isLegalMove(direction, pacman);
+	}
+	
 	/* GETTERS & SETTERS */
 	
 	@NotNull
@@ -343,6 +400,15 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	public void setDirectionToGhosts(@NotNull ArrayList<Integer> directionToGhosts) {
 		this.directionToGhosts = directionToGhosts;
+	}
+	
+	@NotNull
+	public ArrayList<Integer> getDirectionAwayFromGhosts() {
+		return directionAwayFromGhosts;
+	}
+	
+	public void setDirectionAwayFromGhosts(@NotNull ArrayList<Integer> directionAwayFromGhosts) {
+		this.directionAwayFromGhosts = directionAwayFromGhosts;
 	}
 	
 	public void setDistancePacmanFood(int distancePacmanFood) {
@@ -378,6 +444,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		return getPacmanPos().equals(that.getPacmanPos()) &&
 				getDistancePacmanGhosts().equals(that.getDistancePacmanGhosts()) &&
 				getDirectionToGhosts().equals(that.getDirectionToGhosts()) &&
+				//getDirectionAwayFromGhosts().equals(that.getDirectionAwayFromGhosts()) &&
 				getDistancePacmanFood() == that.getDistancePacmanFood() &&
 				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
 	}
@@ -403,15 +470,20 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			for (Integer directionToGhost : getDirectionToGhosts())
 				result = prime * result + (directionToGhost != null ? directionToGhost : 0);
 		
+		/*if (!getDirectionAwayFromGhosts().isEmpty())
+			for (Integer directionAway : getDirectionAwayFromGhosts())
+				result = prime * result + (directionAway != null ? directionAway : 0);*/
+		
 		result = prime * result + getDistancePacmanFood();
 		result = prime * result + getDirectionToClosestFood();
 		return result;
-		//return Objects.hash(getPacmanPos(), getDistancePacmanGhosts(), getDirectionToGhosts(), getDistancePacmanFood(), getDirectionToClosestFood());
+		//return Objects.hash(getPacmanPos(), getDistancePacmanGhosts(), getDirectionToGhosts(), getDirectionAwayFromGhosts(), getDistancePacmanFood(), getDirectionToClosestFood());
 	}
 	
 	@Override
 	public String toString() {
 		assert getDistancePacmanGhosts().size() == getDirectionToGhosts().size();
+		assert getDistancePacmanGhosts().size() == getDirectionAwayFromGhosts().size();
 		
 		StringBuilder strb = new StringBuilder();
 		strb.append("ghost: ");
@@ -425,7 +497,10 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 					.append(" ; ")
 					.append(getDistancePacmanGhosts().get(i).getValue())
 					.append(")")
-					.append(directionCodeToString(getDirectionToGhosts().get(i)));
+					.append(directionCodeToString(getDirectionToGhosts().get(i)))
+					.append("(⇒")
+					.append(directionCodeToString(getDirectionAwayFromGhosts().get(i)))
+					.append(")");
 				
 				if (i + 1 < maxi)
 					strb.append(" ");
