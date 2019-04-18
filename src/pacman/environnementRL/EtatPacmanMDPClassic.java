@@ -20,26 +20,10 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	public static final int TILE_RADIUS_GHOST_DETECTOR = 3;
 	
 	/**
-	 * The pacman's position
-	 */
-	private Pair<Integer, Integer> pacmanPos;
-	
-	/**
 	 * List of all the distances from pacman to close ghosts. Each item of the list is a pair (x ; y) that corresponds
 	 * to the distance on x-axis and y-axis.
 	 */
-	@NotNull
 	private ArrayList<Pair<Integer, Integer>> distancePacmanGhosts;
-	
-	/**
-	 * Direction from pacman to the close ghosts. The index is the same as `distancePacmanGhosts`.
-	 */
-	private ArrayList<Integer> directionToGhosts;
-	
-	/**
-	 * Direction to take for pacman to go away from ghosts
-	 */
-	private ArrayList<Integer> directionAwayFromGhosts;
 	
 	/**
 	 * Direction from pacman to the closest food.
@@ -66,13 +50,8 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		// Get pacman
 		pacman = state.getPacmanState(0);
 		
-		// Get pacman's position
-		pacmanPos = new Pair<>(pacman.getX(), pacman.getY());
-		
 		// Get the closest ghosts and compute their distances from pacman, and the direction
 		distancePacmanGhosts = new ArrayList<>();
-		directionToGhosts = new ArrayList<>();
-		directionAwayFromGhosts = new ArrayList<>();
 		
 		for (int i = 0; i < state.getNumberOfGhosts(); i++) {
 			StateAgentPacman ghost = state.getGhostState(i);
@@ -83,49 +62,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 						pacman.getX() - ghost.getX(),
 						pacman.getY() - ghost.getY()
 				));
-				
-				// Compute the direction
-				int direction = getDirection(pacman, ghost);
-				if (isLegalMove(direction))
-					directionToGhosts.add(direction);
-				else
-					directionToGhosts.add(MazePacman.STOP);
-				
-				// Compute direction that will take pacman away from the ghost
-				/*
-				int iDirection = invertDirection(direction);
-				
-				if (iDirection < 0 || 3 < iDirection)
-					directionAwayFromGhosts.add(MazePacman.STOP);
-				else {
-					// Check if the move is allowed. If not, go towards the food if possible
-					if (!isLegalMove(iDirection)) {
-						// If the (illegal) action is to go north or south...
-						if (iDirection == MazePacman.NORTH || iDirection == MazePacman.SOUTH) {
-							// If the food is east or west, use it as a direction away from the ghost
-							if (Objects.equals(getDirectionToClosestFood(), MazePacman.EAST) ||
-									Objects.equals(getDirectionToClosestFood(), MazePacman.WEST))
-								iDirection = getDirectionToClosestFood();
-								// Else, choose randomly
-							else
-								iDirection = new Random().nextBoolean() ? MazePacman.EAST : MazePacman.WEST;
-						}
-						// If the (illegal) action is to go east or west...
-						else {
-							// If the food is north or south, use it as a direction away from the ghost
-							if (Objects.equals(getDirectionToClosestFood(), MazePacman.NORTH) ||
-									Objects.equals(getDirectionToClosestFood(), MazePacman.SOUTH))
-								iDirection = getDirectionToClosestFood();
-								// Else, choose randomly
-							else
-								iDirection = new Random().nextBoolean() ? MazePacman.NORTH : MazePacman.SOUTH;
-						}
-					}
-					
-					// Apply the direction
-					directionAwayFromGhosts.add(iDirection);
-				}
-				*/
 			}
 		}
 		
@@ -165,9 +101,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	}
 	public EtatPacmanMDPClassic(@NotNull EtatPacmanMDPClassic etat) {
 		setDistancePacmanGhosts(etat.getDistancePacmanGhosts());
-		setDirectionToGhosts(etat.getDirectionToGhosts());
-		setDirectionAwayFromGhosts(etat.getDirectionAwayFromGhosts());
 		setDirectionToClosestFood(etat.getDirectionToClosestFood());
+		setState(etat.getState());
+		setPacman(etat.getPacman());
 	}
 	
 	/* UTILITY METHODS */
@@ -372,15 +308,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	/* GETTERS & SETTERS */
 	
 	@NotNull
-	public Pair<Integer, Integer> getPacmanPos() {
-		return pacmanPos;
-	}
-	
-	public void setPacmanPos(@NotNull Pair<Integer, Integer> pacmanPos) {
-		this.pacmanPos = pacmanPos;
-	}
-	
-	@NotNull
 	public ArrayList<Pair<Integer, Integer>> getDistancePacmanGhosts() {
 		return distancePacmanGhosts;
 	}
@@ -389,30 +316,30 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		this.distancePacmanGhosts = distancePacmanGhosts;
 	}
 	
-	@NotNull
-	public ArrayList<Integer> getDirectionToGhosts() {
-		return directionToGhosts;
-	}
-	
-	public void setDirectionToGhosts(@NotNull ArrayList<Integer> directionToGhosts) {
-		this.directionToGhosts = directionToGhosts;
-	}
-	
-	@NotNull
-	public ArrayList<Integer> getDirectionAwayFromGhosts() {
-		return directionAwayFromGhosts;
-	}
-	
-	public void setDirectionAwayFromGhosts(@NotNull ArrayList<Integer> directionAwayFromGhosts) {
-		this.directionAwayFromGhosts = directionAwayFromGhosts;
-	}
-	
 	public int getDirectionToClosestFood() {
 		return directionToClosestFood;
 	}
 	
 	public void setDirectionToClosestFood(int directionToClosestFood) {
 		this.directionToClosestFood = directionToClosestFood;
+	}
+	
+	@NotNull
+	public StateGamePacman getState() {
+		return state;
+	}
+	
+	public void setState(@NotNull StateGamePacman state) {
+		this.state = state;
+	}
+	
+	@NotNull
+	public StateAgentPacman getPacman() {
+		return pacman;
+	}
+	
+	public void setPacman(@NotNull StateAgentPacman pacman) {
+		this.pacman = pacman;
 	}
 	
 	/* OVERRIDES */
@@ -434,8 +361,6 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		if (!(o instanceof EtatPacmanMDPClassic)) return false;
 		EtatPacmanMDPClassic that = (EtatPacmanMDPClassic) o;
 		return getDistancePacmanGhosts().equals(that.getDistancePacmanGhosts()) &&
-				getDirectionToGhosts().equals(that.getDirectionToGhosts()) &&
-				//getDirectionAwayFromGhosts().equals(that.getDirectionAwayFromGhosts()) &&
 				Objects.equals(getDirectionToClosestFood(), that.getDirectionToClosestFood());
 	}
 	
@@ -453,24 +378,13 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 			}
 		}
 		
-		if (!getDirectionToGhosts().isEmpty())
-			for (Integer directionToGhost : getDirectionToGhosts())
-				result = prime * result + (directionToGhost != null ? directionToGhost : 0);
-		
-		/*if (!getDirectionAwayFromGhosts().isEmpty())
-			for (Integer directionAway : getDirectionAwayFromGhosts())
-				result = prime * result + (directionAway != null ? directionAway : 0);*/
-		
 		result = prime * result + getDirectionToClosestFood();
 		return result;
-		//return Objects.hash(getPacmanPos(), getDistancePacmanGhosts(), getDirectionToGhosts(), getDirectionAwayFromGhosts(), getDistancePacmanFood(), getDirectionToClosestFood());
+		//return Objects.hash(getDistancePacmanGhosts(), getDirectionToClosestFood());
 	}
 	
 	@Override
 	public String toString() {
-		assert getDistancePacmanGhosts().size() == getDirectionToGhosts().size();
-		//assert getDistancePacmanGhosts().size() == getDirectionAwayFromGhosts().size();
-		
 		StringBuilder strb = new StringBuilder();
 		strb.append("ghost: ");
 		
@@ -482,11 +396,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 					.append(getDistancePacmanGhosts().get(i).getKey())
 					.append(" ; ")
 					.append(getDistancePacmanGhosts().get(i).getValue())
-					.append(")")
-					.append(directionCodeToString(getDirectionToGhosts().get(i)))
-					/*.append("(⇒")
-					.append(directionCodeToString(getDirectionAwayFromGhosts().get(i)))
-					.append(")")*/;
+					.append(")");
 				
 				if (i + 1 < maxi)
 					strb.append(" ");
