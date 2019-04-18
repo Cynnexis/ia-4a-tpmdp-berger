@@ -373,21 +373,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	
 	@Override
 	public int hashCode() {
-		int prime = 31;
-		int result = 1;
-		
-		if (!getDistancePacmanGhosts().isEmpty()) {
-			for (Pair<Integer, Integer> ghost : getDistancePacmanGhosts()) {
-				if (ghost != null) {
-					result = prime * result + (ghost.getKey() != null ? ghost.getKey() : 0);
-					result = prime * result + (ghost.getValue() != null ? ghost.getValue() : 0);
-				}
-			}
-		}
-		
-		result = prime * result + getDirectionToClosestFood();
-		return result;
-		//return Objects.hash(getDistancePacmanGhosts(), getDirectionToClosestFood());
+		return Objects.hash(getDistancePacmanGhosts(), getDirectionToClosestFood());
 	}
 	
 	@Override

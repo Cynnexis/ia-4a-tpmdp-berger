@@ -113,11 +113,12 @@ public class GamePacman extends Observable//extends TimerTask
 		this.setChanged();
 		this.notifyObservers();//vue
 		
-		try {
-			Thread.sleep(step_delay);
-		} catch (InterruptedException e) 
-		{
-			e.printStackTrace();
+		if (step_delay > 0) {
+			try {
+				Thread.sleep(step_delay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		state.setScore(state.getScore()+StateGamePacman.STEP);
 		
@@ -165,12 +166,13 @@ public class GamePacman extends Observable//extends TimerTask
 		assert((pacmansAgents.size()==state.getNumberOfPacmans()));
 		assert((ghostsAgents.size()==state.getNumberOfGhosts()));
 		
-		try {
-			Thread.sleep(step_delay);
-		} catch (InterruptedException e) 
-		{
-			e.printStackTrace();
-		}		
+		if (step_delay > 0) {
+			try {
+				Thread.sleep(step_delay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		 
 		isPacmanTurn=true;//si vrai, bouge les pacman; si faux, bouge les ghosts: tour par tour
 		
@@ -201,12 +203,13 @@ public class GamePacman extends Observable//extends TimerTask
 		assert((pacmansAgents.size()==state.getNumberOfPacmans()));
 		assert((ghostsAgents.size()==state.getNumberOfGhosts()));
 		
-		try {
-			Thread.sleep(step_delay);
-		} catch (InterruptedException e) 
-		{
-			e.printStackTrace();
-		}		
+		if (step_delay > 0) {
+			try {
+				Thread.sleep(step_delay);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		isPacmanTurn=true;
 		int nb_turn=0;
