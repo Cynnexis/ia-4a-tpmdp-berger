@@ -73,7 +73,7 @@ public class QLearningAgent extends RLAgent {
 	public double getValeur(Etat e) {
 		// VOTRE CODE
 		
-		if (getActionsLegales(e).isEmpty())
+		if (env.getActionsPossibles(e).isEmpty())
 			return 0.;
 		
 		double max = Double.NEGATIVE_INFINITY;
@@ -88,6 +88,7 @@ public class QLearningAgent extends RLAgent {
 		
 		return max;
 	}
+	
 	@Override
 	public double getQValeur(Etat e, Action a) {
 		// VOTRE CODE
@@ -159,13 +160,13 @@ public class QLearningAgent extends RLAgent {
 		
 		// VOTRE CODE
 		setQValeur(e, a, (1 - getAlpha()) * getQValeur(e, a) + getAlpha() * (reward + getGamma() * getValeur(esuivant)));
-		
-		//System.out.println("Nombre d'état: " + qvaleurs.keySet().size());
 	}
 	
 	@Override
 	public void endEpisode() {
 		super.endEpisode();
+		System.out.print("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+		System.out.flush();
 		System.out.println("Number of states: " + qvaleurs.keySet().size());
 	}
 	
