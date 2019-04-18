@@ -11,6 +11,8 @@ import agent.strategy.StrategyManuel;
 import environnement.Action;
 import environnement.Environnement;
 import environnement.Etat;
+import pacman.environnementRL.EtatPacmanMDPClassic;
+
 /**
  * Cet agent evalue les couples etat-action, et observe l'environnement 
  * pour savoir quand une transition est realisee et etre notifie de la recompense recue.
@@ -142,7 +144,7 @@ public abstract class RLAgent extends ValueAgent implements IRLAgent,Observer{
 		Etat etat= env.getEtatCourant();
 		Action act = this.getAction(etat);	//modif de etat courant de environnement
 		env.doAction(act) ; //env notifie son observateur (agent) de la recompense et fait alors update dans lequel endStep
-		if (DISPETAT)
+		if (DISPETAT && etat instanceof EtatPacmanMDPClassic)
 			System.out.println(etat);
 	}
 
