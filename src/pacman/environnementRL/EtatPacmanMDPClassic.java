@@ -84,9 +84,9 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 				int iter = 0;
 				do {
 					if (direction == MazePacman.NORTH || direction == MazePacman.SOUTH)
-						setDirectionToClosestFood(new Random().nextBoolean() ? MazePacman.EAST : MazePacman.WEST);
+						setDirectionToClosestFood(pickRandomly(MazePacman.EAST, MazePacman.WEST));
 					else
-						setDirectionToClosestFood(new Random().nextBoolean() ? MazePacman.NORTH : MazePacman.SOUTH);
+						setDirectionToClosestFood(pickRandomly(MazePacman.NORTH, MazePacman.SOUTH));
 					
 					iter++;
 					if (iter >= 100) {
@@ -303,6 +303,13 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	}
 	public boolean isLegalMove(int direction) {
 		return isLegalMove(direction, pacman);
+	}
+	
+	public <T> T pickRandomly(List<T> elements) {
+		return elements.get(new Random().nextInt(elements.size()));
+	}
+	public <T> T pickRandomly(T... elements) {
+		return pickRandomly(Arrays.asList(elements));
 	}
 	
 	/* GETTERS & SETTERS */
