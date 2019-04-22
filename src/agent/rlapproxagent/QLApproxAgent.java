@@ -6,8 +6,14 @@ import environnement.Action;
 import environnement.Environnement;
 import environnement.Etat;
 import org.jetbrains.annotations.NotNull;
+import pacman.elements.StateGamePacman;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import static pacman.Utils.*;
 
 /**
  * Agent qui apprend avec QLearning en utilisant approximation de la Q-valeur : 
@@ -20,6 +26,9 @@ public class QLApproxAgent extends QLearningAgent{
 	
 	private FeatureFunction featureFunction;
 	private double[] weights;
+	
+	// Hiding qvaleurs
+	protected Object qvaleurs = null;
 	
 	public QLApproxAgent(double alpha, double gamma, @NotNull Environnement env, @NotNull FeatureFunction featureFunction) {
 		super(alpha, gamma, env);
@@ -41,6 +50,15 @@ public class QLApproxAgent extends QLearningAgent{
 	}
 	
 	@Override
+	public void setQValeur(Etat e, Action a, double d) {
+		throw new RuntimeException("The method `setQValeur` cannot be called within `QLApproxAgent`.\n" +
+				"Arguments:\n" +
+				"\te = " + e + "\n" +
+				"\ta = " + a + "\n" +
+				"\td = " + d);
+	}
+	
+	@Override
 	public void endStep(Etat e, Action a, Etat esuivant, double reward) {
 		if (RLAgent.DISPRL)
 			System.out.println("QL: mise a jour poids pour etat \n"+e+" action "+a+" etat' \n"+esuivant+ " r "+reward);
@@ -54,12 +72,22 @@ public class QLApproxAgent extends QLearningAgent{
 		
 		for (int k = 0; k < weights.length; k++)
 			weights[k] += getAlpha() * (reward + getGamma() * max - qvalue) * phi[k];
+		
+		if (DISPETAT) {
+			if (e instanceof StateGamePacman) {
+				String etat = String.format("%3d", ((StateGamePacman) e).getStep());
+				System.out.println("\tvfeature(" + etat + ", " + directionCodeToString(a.ordinal()) + ") = (" + (int) phi[0] + ", " + (int) phi[1] + " ghost" + (phi[1] > 1 ? 's' : ' ') + ", " + (phi[2] == 1 ? "⚫" : "⚪") + ", " + phi[3] + "m" + ")");
+			}
+			/*else
+				System.out.println("\tvfeature(e, " + directionCodeToString(a.ordinal()) + ") = (" + Arrays.toString(phi).replaceAll("[\\[\\]]", "") + ")");*/
+		}
 	}
 	
 	@Override
 	public void reset() {
 		super.reset();
-		this.qvaleurs.clear();
+		
+		// VOTRE CODE
 		
 		// Set all weights to zero
 		Arrays.fill(weights, 0.);
@@ -76,7 +104,7 @@ public class QLApproxAgent extends QLearningAgent{
 	
 	public double dotProduct(@NotNull double[] a, @NotNull double[] b) {
 		if (a.length != b.length)
-			throw new IllegalArgumentException("Cannot apply dot product on vector with different size: dim(a) = " + a.length + " ; dim(b) = " + b.length);
+			throw new IllegalArgumentException("Cannot apply dot product on vectors with different size: dim(a) = " + a.length + " ; dim(b) = " + b.length);
 		
 		double result = 0;
 		
@@ -102,7 +130,7 @@ public class QLApproxAgent extends QLearningAgent{
 		return weights;
 	}
 	
-	public void setWeights(double[] weights) {
+	protected void setWeights(double[] weights) {
 		this.weights = weights;
 	}
 }

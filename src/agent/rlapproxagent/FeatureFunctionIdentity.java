@@ -53,7 +53,7 @@ public class FeatureFunctionIdentity implements FeatureFunction {
 		
 		int index = getIndex(e, a);
 		if (index >= features.length)
-			throw new RuntimeException("Array length: " + features.length + ", index: " + index);
+			throw new RuntimeException("Array length: " + features.length + ", index: " + index, new ArrayIndexOutOfBoundsException(index));
 		
 		features[index] = 1;
 		return features;

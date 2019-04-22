@@ -112,7 +112,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 	}
 	
 	public int getDimensions() {
-		return state.getNumberOfPacmans() * (((int) Math.pow(2 * TILE_RADIUS_GHOST_DETECTOR + 1, 3)) * state.getNumberOfGhosts() + 5);
+		return state.getNumberOfPacmans() * (((int) Math.pow(2 * TILE_RADIUS_GHOST_DETECTOR + 1, 2)) * state.getNumberOfGhosts() * 7);
 	}
 	
 	/* GETTERS & SETTERS */

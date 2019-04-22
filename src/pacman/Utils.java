@@ -9,6 +9,8 @@ import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
 import pacman.environnementRL.Distance;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,12 +110,31 @@ public class Utils {
 	}
 	
 	public static boolean[][] getFoods(@NotNull final StateGamePacman state) {
+		try {
+			return getBooleanArray(state, "isFood");
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static boolean[][] getWalls(@NotNull final StateGamePacman state) {
+		try {
+			return getBooleanArray(state, "isWall");
+		} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	private static boolean[][] getBooleanArray(@NotNull final StateGamePacman state, @NotNull final String methodName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+		Method isThere = state.getMaze().getClass().getMethod(methodName, int.class, int.class);
+		
 		boolean[][] f = new boolean[state.getMaze().getSizeX()][state.getMaze().getSizeY()];
 		for (int x = 0; x < state.getMaze().getSizeX(); x++) {
 			for (int y = 0; y < state.getMaze().getSizeY(); y++) {
-				f[x][y] = state.getMaze().isFood(x, y);
+				f[x][y] = (boolean) isThere.invoke(state.getMaze(), x, y);
 			}
 		}
+		
 		return f;
 	}
 	

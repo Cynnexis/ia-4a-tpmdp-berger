@@ -78,9 +78,9 @@ public class testRLPacman extends Application{
 		rlagent = new QLApproxAgent(alpha,gamma,pacmanmdp,featurefunction);*/
 
 		//QLearning avec approximation lineaire
-		pacmanmdp = new EnvironnementPacmanFeatureRL(mazename,true);//smallGrid smallGrid2 mediumGrid
-		FeatureFunction featurefunction2 = new FeatureFunctionPacman();
-		rlagent = new QLApproxAgent(alpha,gamma,pacmanmdp,featurefunction2);
+		pacmanmdp = new EnvironnementPacmanFeatureRL(mazename,true);
+		FeatureFunction featureFunction = new FeatureFunctionPacman();
+		rlagent = new QLApproxAgent(alpha,gamma,pacmanmdp,featureFunction);
 	}
 	
 	/**

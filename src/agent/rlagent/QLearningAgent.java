@@ -73,14 +73,15 @@ public class QLearningAgent extends RLAgent {
 	public double getValeur(Etat e) {
 		// VOTRE CODE
 		
-		if (env.getActionsPossibles(e).isEmpty())
+		List<Action> actions = env.getActionsPossibles(e);
+		if (actions.isEmpty())
 			return 0.;
 		
 		double max = Double.NEGATIVE_INFINITY;
 		double current;
 		
 		// For all action in `submap` (given by e1)
-		for (Action a : env.getActionsPossibles(e)) {
+		for (Action a : actions) {
 			current = getQValeur(e, a);
 			if (max < current)
 				max = current;
