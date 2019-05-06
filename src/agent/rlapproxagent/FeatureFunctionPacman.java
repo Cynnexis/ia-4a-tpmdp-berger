@@ -2,6 +2,7 @@ package agent.rlapproxagent;
 
 import javafx.util.Pair;
 import pacman.elements.ActionPacman;
+import pacman.elements.MazePacman;
 import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
 import pacman.environnementRL.Distance;
@@ -29,7 +30,7 @@ public class FeatureFunctionPacman implements FeatureFunction {
 	private static int NBACTIONS = 4;
 	
 	public FeatureFunctionPacman() {
-		vfeatures = new double[5];
+		vfeatures = new double[6];
 	}
 
 	@Override
@@ -89,12 +90,12 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		// Distance to closest food
 		vfeatures[3] = state.getClosestDot(pacman) / (double) (state.getMaze().getSizeX() + state.getMaze().getSizeY()/* - convertBooleanArrayToStates(getWalls(state)).size() */);
 		
-		// Number of ghosts in a 3 tile radius
-		//vfeatures[4] = getAgentsInRadius(nextPacman, ghosts, 3, Distance.MANHATTAN).size();
-		
 		// Distance to closest ghost
-		// 💥
 		vfeatures[4] = getClosestAgent(nextPacman, nextGhosts, Distance.EUCLIDEAN).getValue() / (double) (state.getMaze().getSizeX() * state.getMaze().getSizeY());
+		
+		
+		// Number of ghosts in a 3 tile radius
+		vfeatures[5] = getAgentsInRadius(nextPacman, nextGhosts, 3, Distance.MANHATTAN).size();
 		
 		return vfeatures;
 	}
