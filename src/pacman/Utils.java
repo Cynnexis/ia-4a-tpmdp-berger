@@ -150,6 +150,16 @@ public class Utils {
 		}
 	}
 	
+	public static ArrayList<StateAgentPacman> getGhosts(@NotNull final StateGamePacman state) {
+		return new ArrayList<StateAgentPacman>(state.getNumberOfGhosts()) {
+			{
+				for (int i = 0; i < state.getNumberOfGhosts(); i++) {
+					add(state.getGhostState(i));
+				}
+			}
+		};
+	}
+	
 	public static boolean[][] getFoods(@NotNull final StateGamePacman state) {
 		try {
 			return getBooleanArray(state, "isFood");

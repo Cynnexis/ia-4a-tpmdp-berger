@@ -5,7 +5,6 @@ import pacman.elements.ActionPacman;
 import pacman.elements.StateAgentPacman;
 import pacman.elements.StateGamePacman;
 import pacman.environnementRL.Distance;
-import pacman.environnementRL.EnvironnementPacmanMDPClassic;
 import environnement.Action;
 import environnement.Etat;
 
@@ -30,7 +29,7 @@ public class FeatureFunctionPacman implements FeatureFunction {
 	private static int NBACTIONS = 4;
 	
 	public FeatureFunctionPacman() {
-		vfeatures = new double[6];
+		vfeatures = new double[5];
 	}
 
 	@Override
@@ -51,13 +50,10 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		}
 		
 		state = (StateGamePacman) e;
+		StateGamePacman nextState = state.nextStatePacman(new ActionPacman(a.ordinal()));
 		StateAgentPacman pacman= state.getPacmanState(0);
-		ArrayList<StateAgentPacman> ghosts = new ArrayList<StateAgentPacman>(state.getNumberOfGhosts()) {
-			{
-				for (int i = 0; i < state.getNumberOfGhosts(); i++)
-					add(state.getGhostState(i));
-			}
-		};
+		ArrayList<StateAgentPacman> ghosts = getGhosts(state);
+		ArrayList<StateAgentPacman> nextGhosts = getGhosts(state);
 		StateAgentPacman nextPacman= state.movePacmanSimu(0, new ActionPacman(a.ordinal()));
 		
 		// VOTRE CODE
@@ -91,13 +87,14 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		}*/
 		
 		// Distance to closest food
-		vfeatures[3] = distancePacdot/* / (double) (state.getMaze().getSizeX() * state.getMaze().getSizeY() / * - convertBooleanArrayToStates(getWalls(state)).size() * / )*/;
+		vfeatures[3] = state.getClosestDot(pacman) / (double) (state.getMaze().getSizeX() + state.getMaze().getSizeY()/* - convertBooleanArrayToStates(getWalls(state)).size() */);
 		
 		// Number of ghosts in a 3 tile radius
-		vfeatures[4] = getAgentsInRadius(nextPacman, ghosts, 3, Distance.MANHATTAN).size();
+		//vfeatures[4] = getAgentsInRadius(nextPacman, ghosts, 3, Distance.MANHATTAN).size();
 		
 		// Distance to closest ghost
-		vfeatures[5] = getClosestAgent(nextPacman, ghosts, Distance.MANHATTAN).getValue();
+		// 💥
+		vfeatures[4] = getClosestAgent(nextPacman, nextGhosts, Distance.EUCLIDEAN).getValue() / (double) (state.getMaze().getSizeX() * state.getMaze().getSizeY());
 		
 		return vfeatures;
 	}
