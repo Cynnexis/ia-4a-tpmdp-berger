@@ -8,6 +8,7 @@ import pacman.elements.StateGamePacman;
 import pacman.environnementRL.Distance;
 import environnement.Action;
 import environnement.Etat;
+import pacman.environnementRL.EtatPacmanMDPClassic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,14 +64,7 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		vfeatures[0] = 1.;
 		
 		// Number of ghost that can reach pacman in one step at the next iteration
-		/*vfeatures[1] = 0;
-		for (int i = 0; i < state.getNumberOfGhosts(); i++) {
-			StateAgentPacman ghost = state.getGhostState(i);
-			
-			if (computeDistance(nextPacman, ghost, Distance.MANHATTAN) <= 1)
-				vfeatures[1]++;
-		}*/
-		vfeatures[1] = getAgentsInRadius(nextPacman, ghosts, 1, Distance.MANHATTAN).size();
+		vfeatures[1] = getAgentsInRadius(nextPacman, nextGhosts, 1, Distance.MANHATTAN).size();
 		
 		// Is there a pacdot in pacman's position at next iteration?
 		ArrayList<StateAgentPacman> foods = convertBooleanArrayToStates(getFoods(state));
@@ -81,12 +75,6 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		// phi[2] is a boolean
 		vfeatures[2] = distancePacdot == 0 ? 1. : 0.;
 		
-		// If pacman eat a pacdot at next iteration, search for next closest pacdot
-		/*if (distancePacdot == 0) {
-			foods.remove(closestFood);
-			distancePacdot = getClosestAgent(nextPacman, foods, Distance.MANHATTAN).getValue();
-		}*/
-		
 		// Distance to closest food
 		vfeatures[3] = state.getClosestDot(pacman) / (double) (state.getMaze().getSizeX() + state.getMaze().getSizeY()/* - convertBooleanArrayToStates(getWalls(state)).size() */);
 		
@@ -95,7 +83,7 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		
 		
 		// Number of ghosts in a 3 tile radius
-		vfeatures[5] = getAgentsInRadius(nextPacman, nextGhosts, 3, Distance.MANHATTAN).size();
+		vfeatures[5] = getAgentsInRadius(nextPacman, nextGhosts, EtatPacmanMDPClassic.TILE_RADIUS_GHOST_DETECTOR, Distance.MANHATTAN).size();
 		
 		return vfeatures;
 	}

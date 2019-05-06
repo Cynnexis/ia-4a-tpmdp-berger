@@ -6,3 +6,7 @@ Laëtitia Matignon
 L'énoncé du TP1 est [TP1MDP.pdf](TP1MDP.pdf).
 
 L'énoncé du TP2 est [TP2RL.pdf](TP2RL.pdf).
+
+## Rapport
+
+Le rapport se situe dans le fichier Voir [IA-4A-TPMDP-Berger.pdf](https://raw.githubusercontent.com/PolytechLyon/ia-4a-tpmdp-berger/master/IA-4A-TPMDP-Berger.pdf) à la racine du projet.

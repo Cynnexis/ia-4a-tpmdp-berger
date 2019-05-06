@@ -37,11 +37,11 @@ public class testRLPacman extends Application{
 	
 	// parametres experience a lancer, un episode = une partie */
 	/** nombre d'experiences a lancer (pour faire une moyenne), une experience est un apprentissage sur plusieurs parties */
-	static int nbmean = 1;
+	static int nbmean = 3;
 	/** nombre de parties ou l'agent apprend */
-	static int nbepisodelearn = 400;
+	static int nbepisodelearn = 500;
 	/** nombre de partie ou l'agent exploite la politique apprise (epsilon=0) */
-	static int nbepisodegreedy = 250;
+	static int nbepisodegreedy = 300;
 	/** nombre de parties ou l'on affiche le jeu pacman pour voir le comportement appris  */
 	static int nbepisodegreedydisplay = 1;
 
@@ -110,9 +110,10 @@ public class testRLPacman extends Application{
 
 	/** trace courbe moyenne sur plusieurs expe, affiche jeu pacman sur derniers episodes greedy de derniere expe */
 	private static void apprentissage(){
+		long timerStart = System.currentTimeMillis();
 		//nb d'episode greedy ou gagne / nbepisodegreedy
 		int nbwin=0;
-			
+		
 		//si affiche courbe a la fin de l'apprentissage
 		if (DISPLAYCHART){
 			lineChart = new IndicateursMeanSumRwd(new NumberAxis(),new NumberAxis(),nbepisodelearn+nbepisodegreedy+nbepisodegreedydisplay,nbmean,rlagent);
@@ -145,7 +146,10 @@ public class testRLPacman extends Application{
 	   		System.out.print(data[i]+" ");
 	   	}
 */
+		long timerStop = System.currentTimeMillis();
+		
 		System.out.println("PACMAN  greedy gagne "+nbwin+ " fois sur "+nbmean*nbepisodegreedy+" : "+ (nbwin*100/(nbmean*nbepisodegreedy))+"%");
+		System.out.println("Temps: " + (timerStop - timerStart) + "ms");
 		if (DISPLAYPACMANGAME){
 			//pour voir jeu pacman en mode greedy
 			pacmanmdp.getGamepacman().setStep_delay(100); // Default: 300ms
