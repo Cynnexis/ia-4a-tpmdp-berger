@@ -53,7 +53,7 @@ public class EtatPacmanMDPClassic implements Etat, Cloneable {
 		pacman = state.getPacmanState(0);
 		
 		// Get the closest ghosts and compute their distances from pacman, and the direction
-		distancePacmanGhosts = new ArrayList<>();
+		distancePacmanGhosts = new ArrayList<>(state.getNumberOfGhosts());
 		
 		for (int i = 0; i < state.getNumberOfGhosts(); i++) {
 			StateAgentPacman ghost = state.getGhostState(i);

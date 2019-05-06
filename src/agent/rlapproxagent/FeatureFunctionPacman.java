@@ -30,7 +30,7 @@ public class FeatureFunctionPacman implements FeatureFunction {
 	private static int NBACTIONS = 4;
 	
 	public FeatureFunctionPacman() {
-		vfeatures = new double[4];
+		vfeatures = new double[6];
 	}
 
 	@Override
@@ -51,21 +51,29 @@ public class FeatureFunctionPacman implements FeatureFunction {
 		}
 		
 		state = (StateGamePacman) e;
+		StateAgentPacman pacman= state.getPacmanState(0);
+		ArrayList<StateAgentPacman> ghosts = new ArrayList<StateAgentPacman>(state.getNumberOfGhosts()) {
+			{
+				for (int i = 0; i < state.getNumberOfGhosts(); i++)
+					add(state.getGhostState(i));
+			}
+		};
 		StateAgentPacman nextPacman= state.movePacmanSimu(0, new ActionPacman(a.ordinal()));
-		 
+		
 		// VOTRE CODE
 		
 		// Bias
 		vfeatures[0] = 1.;
 		
 		// Number of ghost that can reach pacman in one step at the next iteration
-		vfeatures[1] = 0;
+		/*vfeatures[1] = 0;
 		for (int i = 0; i < state.getNumberOfGhosts(); i++) {
 			StateAgentPacman ghost = state.getGhostState(i);
 			
 			if (computeDistance(nextPacman, ghost, Distance.MANHATTAN) <= 1)
 				vfeatures[1]++;
-		}
+		}*/
+		vfeatures[1] = getAgentsInRadius(nextPacman, ghosts, 1, Distance.MANHATTAN).size();
 		
 		// Is there a pacdot in pacman's position at next iteration?
 		ArrayList<StateAgentPacman> foods = convertBooleanArrayToStates(getFoods(state));
@@ -82,7 +90,14 @@ public class FeatureFunctionPacman implements FeatureFunction {
 			distancePacdot = getClosestAgent(nextPacman, foods, Distance.MANHATTAN).getValue();
 		}*/
 		
-		vfeatures[3] = distancePacdot / (double) (state.getMaze().getSizeX() * state.getMaze().getSizeY()/* - convertBooleanArrayToStates(getWalls(state)).size()*/);
+		// Distance to closest food
+		vfeatures[3] = distancePacdot/* / (double) (state.getMaze().getSizeX() * state.getMaze().getSizeY() / * - convertBooleanArrayToStates(getWalls(state)).size() * / )*/;
+		
+		// Number of ghosts in a 3 tile radius
+		vfeatures[4] = getAgentsInRadius(nextPacman, ghosts, 3, Distance.MANHATTAN).size();
+		
+		// Distance to closest ghost
+		vfeatures[5] = getClosestAgent(nextPacman, ghosts, Distance.MANHATTAN).getValue();
 		
 		return vfeatures;
 	}

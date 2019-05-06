@@ -11,10 +11,7 @@ import pacman.environnementRL.Distance;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Utils {
 	
@@ -77,6 +74,50 @@ public class Utils {
 	@Contract("_, _ -> new")
 	public static Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull List<StateAgentPacman> othersAgent) {
 		return getClosestAgent(reference, othersAgent, Distance.EUCLIDEAN);
+	}
+	/**
+	 * Find the closest agent in the list `othersAgent` to `reference`, using the euclidean distance.
+	 * @param reference The reference agent.
+	 * @param othersAgent The others agent that must be parsed. `reference` must NOT be in this list.
+	 * @return Return the closest agent.
+	 */
+	@NotNull
+	@Contract("_, _ -> new")
+	public static Pair<StateAgentPacman, Double> getClosestAgent(@NotNull StateAgentPacman reference, @NotNull StateAgentPacman... othersAgent) {
+		return getClosestAgent(reference, Arrays.asList(othersAgent), Distance.EUCLIDEAN);
+	}
+	
+	/**
+	 * Find the agents in the list `othersAgent` that are around `reference` in a specific radius.
+	 * @param reference The reference agent.
+	 * @param othersAgent The others agent that must be parsed. `reference` must NOT be in this list.
+	 * @param tileRadius The radius (in tile) for the search.
+	 * @param distanceType The type of distance to use. By default, the euclidean distance is used.
+	 * @return Return the list of all agents in the radius with their distance to `reference`. Use a stream to extract
+	 *         the desire element(s).
+	 */
+	public static ArrayList<Pair<StateAgentPacman, Double>> getAgentsInRadius(@NotNull StateAgentPacman reference, @NotNull Collection<StateAgentPacman> othersAgent, double tileRadius, @NotNull Distance distanceType) {
+		ArrayList<Pair<StateAgentPacman, Double>> agents = new ArrayList<>();
+		
+		double distance;
+		for (StateAgentPacman a : othersAgent) {
+			if ((distance = computeDistance(reference, a, distanceType)) <= tileRadius) {
+				agents.add(new Pair<>(a, distance));
+			}
+		}
+		
+		return agents;
+	}
+	/**
+	 * Find the agents in the list `othersAgent` that are around `reference` in a specific radius. The euclidean distance is used.
+	 * @param reference The reference agent.
+	 * @param othersAgent The others agent that must be parsed. `reference` must NOT be in this list.
+	 * @param tileRadius The radius (in tile) for the search.
+	 * @return Return the list of all agents in the radius with their distance to `reference`. Use a stream to extract
+	 *         the desire element(s).
+	 */
+	public static ArrayList<Pair<StateAgentPacman, Double>> getAgentsInRadius(@NotNull StateAgentPacman reference, @NotNull Collection<StateAgentPacman> othersAgent, double tileRadius) {
+		return getAgentsInRadius(reference, othersAgent, tileRadius, Distance.EUCLIDEAN);
 	}
 	
 	/**

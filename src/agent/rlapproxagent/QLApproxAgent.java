@@ -76,7 +76,61 @@ public class QLApproxAgent extends QLearningAgent {
 		if (DISPETAT) {
 			if (e instanceof StateGamePacman) {
 				String etat = String.format("%3d", ((StateGamePacman) e).getStep());
-				System.out.println("\tvfeature(" + etat + ", " + directionCodeToString(a.ordinal()) + ") = (" + (int) phi[0] + ", " + (int) phi[1] + " ghost" + (phi[1] > 1 ? 's' : ' ') + ", " + (phi[2] == 1 ? "⚫" : "⚪") + ", " + phi[3] + "m" + ")");
+				StringBuilder content = new StringBuilder("\tvfeature(")
+						.append(etat)
+						.append(", ")
+						.append(directionCodeToString(a.ordinal()))
+						.append(") = (");
+				if (phi.length == 0)
+					content.append(")");
+				else {
+					content.append((int) phi[0]);
+					if (phi.length == 1)
+						content.append(")");
+					else {
+						content.append(", ")
+								.append((int) phi[1])
+								.append(" ghost")
+								.append((phi[1] > 1 ? 's' : ' '));
+						if (phi.length == 2)
+							content.append(")");
+						else {
+							content.append(", ")
+									.append((phi[2] == 1 ? "⚫" : "⚪"));
+							if (phi.length == 3)
+								content.append(")");
+							else {
+								content.append(", ")
+										.append(phi[3])
+										.append("m");
+								if (phi.length == 4)
+									content.append(")");
+								else {
+									content.append(", ")
+											.append((int) phi[4])
+											.append(" ghost")
+											.append((phi[4] > 1 ? 's' : ' '));
+									if (phi.length == 5)
+										content.append(")");
+									else {
+										content.append(", ")
+												.append(phi[5])
+												.append("m");
+										if (phi.length == 6)
+											content.append(")");
+										else {
+											for (int i = 6; i < phi.length; i++)
+												content.append(", ").append(phi[i]);
+											content.append(")");
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				System.out.println(content.toString());
 			}
 			/*else
 				System.out.println("\tvfeature(e, " + directionCodeToString(a.ordinal()) + ") = (" + Arrays.toString(phi).replaceAll("[\\[\\]]", "") + ")");*/
