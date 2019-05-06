@@ -22,7 +22,7 @@ import static pacman.Utils.*;
  * @author laetitiamatignon
  *
  */
-public class QLApproxAgent extends QLearningAgent{
+public class QLApproxAgent extends QLearningAgent {
 	
 	private FeatureFunction featureFunction;
 	private double[] weights;
@@ -106,7 +106,7 @@ public class QLApproxAgent extends QLearningAgent{
 		if (a.length != b.length)
 			throw new IllegalArgumentException("Cannot apply dot product on vectors with different size: dim(a) = " + a.length + " ; dim(b) = " + b.length);
 		
-		double result = 0;
+		double result = 0.;
 		
 		for (int i = 0; i < a.length; i++)
 			result += a[i] * b[i];
@@ -114,15 +114,14 @@ public class QLApproxAgent extends QLearningAgent{
 		return result;
 	}
 	
-	/* GETTERS & SETTERS */
+	//region GETTERS & SETTERS
 	
 	@NotNull
 	public FeatureFunction getFeatureFunction() {
 		return featureFunction;
 	}
 	
-	@NotNull
-	public void setFeatureFunction(FeatureFunction featureFunction) {
+	public void setFeatureFunction(@NotNull FeatureFunction featureFunction) {
 		this.featureFunction = featureFunction;
 	}
 	
@@ -133,4 +132,6 @@ public class QLApproxAgent extends QLearningAgent{
 	protected void setWeights(double[] weights) {
 		this.weights = weights;
 	}
+	
+	//endregion
 }

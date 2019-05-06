@@ -32,7 +32,6 @@ public class FeatureFunctionIdentity implements FeatureFunction {
 	public FeatureFunctionIdentity(int _nbEtat, int _nbAction){
 		// VOTRE CODE
 		maxIndex = 0;
-		//nbDim = (int) Math.ceil((double) (_nbEtat * _nbAction) / 2.);
 		nbDim = _nbEtat * _nbAction;
 		System.out.println("FeatureFunctionIdentity> nbDim = " + nbDim);
 		indexes = new HashMap<>(nbDim);

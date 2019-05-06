@@ -19,7 +19,7 @@ import static pacman.Utils.*;
  * @author laetitiamatignon
  *
  */
-public class FeatureFunctionPacman implements FeatureFunction{
+public class FeatureFunctionPacman implements FeatureFunction {
 	
 	private double[] vfeatures;
 	
@@ -35,7 +35,7 @@ public class FeatureFunctionPacman implements FeatureFunction{
 
 	@Override
 	public int getFeatureNb() {
-		return 4;
+		return vfeatures.length;
 	}
 
 	@Override
@@ -69,9 +69,11 @@ public class FeatureFunctionPacman implements FeatureFunction{
 		
 		// Is there a pacdot in pacman's position at next iteration?
 		ArrayList<StateAgentPacman> foods = convertBooleanArrayToStates(getFoods(state));
+		// Get the closest food and its distance from pacman
 		Pair<StateAgentPacman, Double> closestFoodDistance = getClosestAgent(nextPacman, foods, Distance.MANHATTAN);
 		StateAgentPacman closestFood = closestFoodDistance.getKey();
 		double distancePacdot = closestFoodDistance.getValue();
+		// phi[2] is a boolean
 		vfeatures[2] = distancePacdot == 0 ? 1. : 0.;
 		
 		// If pacman eat a pacdot at next iteration, search for next closest pacdot
@@ -86,6 +88,6 @@ public class FeatureFunctionPacman implements FeatureFunction{
 	}
 	
 	public void reset() {
-		Arrays.fill(vfeatures, 0);
+		Arrays.fill(vfeatures, 0.);
 	}
 }

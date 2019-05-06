@@ -15,6 +15,7 @@ import environnement.Action;
 import environnement.Action2D;
 import environnement.Environnement;
 import environnement.Etat;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -77,7 +78,7 @@ public abstract class EnvironnementPacmanRL extends Environnement {
 
 	@Override
 	public Set<Etat> getEtatSuccesseurs(Etat _e, Action _a) {
-		// TODO Auto-generated method stub
+		//throw new NotImplementedException();
 		return null;//utile que pour la recherche donc pas a faire ici
 	}
 	
